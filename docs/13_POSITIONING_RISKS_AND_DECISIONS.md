@@ -52,8 +52,8 @@ The IDs below are `RESERVED`; they are not accepted authority until a correspond
 
 - ADR-001: Temporary codename and package scope. `Accepted` — `docs/adr/ADR-001-codename-and-package-scope.md`.
 - ADR-002: First official renderer. `Accepted` — `docs/adr/ADR-002-first-official-renderer.md`.
-- ADR-003: Route filesystem convention.
-- ADR-004: Route-module API syntax.
+- ADR-003: Route filesystem convention. `Accepted` — `docs/adr/ADR-003-route-filesystem-convention.md`. Role-suffixed filenames with three amendments: one canonical spelling per URL, folded case and Unicode comparison, and reserved-device-name rejection.
+- ADR-004: Route-module API syntax. `Accepted` — `docs/adr/ADR-004-route-module-api-syntax.md`. Analyzable named exports are normative; typed helpers are optional and the compiler never requires them.
 - ADR-005: Monorepo and toolchain. `Accepted` — `docs/adr/ADR-005-monorepo-and-toolchain.md`.
 - ADR-006: Supported runtime and TypeScript policy.
 - ADR-007: Error-code taxonomy.

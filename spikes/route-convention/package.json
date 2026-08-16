@@ -1,0 +1,14 @@
+{
+  "name": "@nusajs-spike/route-convention",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Throwaway measurement spike for FW-004 / ADR-003 / ADR-004. Not a framework package and never published.",
+  "scripts": {
+    "measure": "node ./measure.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

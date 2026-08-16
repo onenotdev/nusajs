@@ -5,7 +5,7 @@ This matrix maps product requirements to implementation tasks and evidence. Agen
 | Requirement | Primary PRD | Initial tasks | Required evidence |
 |---|---|---|---|
 | FR-001 Project CLI | Compiler and DX | FW-115, FW-215 | Cross-OS create-to-page E2E |
-| FR-002 Typed filesystem router | Routing | FW-104–108 | Unit, type, and Routes-10k tests |
+| FR-002 Typed filesystem router | Routing | FW-004, FW-104–108 | Convention and module-API decisions: [docs/adr/ADR-003-route-filesystem-convention.md](adr/ADR-003-route-filesystem-convention.md) (`Accepted`) fixes the filesystem convention and its three amendments, [docs/adr/ADR-004-route-module-api-syntax.md](adr/ADR-004-route-module-api-syntax.md) (`Accepted`) fixes the route-module surface and its four commitments, both measured by `spikes/route-convention/results/route-convention-comparison.md` and enforced by `tests/route-convention.test.ts`; plus unit, type, and Routes-10k tests |
 | FR-003 Rendering modes | Rendering | FW-112, FW-210, FW-301, FW-306, FW-401, FW-404 | Rendering conformance and bundle manifests |
 | FR-004 Loader environment | Data | FW-203 | Server/client graph tests |
 | FR-005 Safe mutations | Data and Security | FW-204, FW-503, FW-504 | Form E2E, schema, CSRF suite |
@@ -14,7 +14,7 @@ This matrix maps product requirements to implementation tasks and evidence. Agen
 | FR-008 Adapter consistency | Adapters | FW-214 | Published conformance results |
 | FR-009 Plugin extension | Plugins | FW-601–603 | External plugin fixture |
 | FR-010 Actionable errors | DX | FW-006, FW-102 | Diagnostic and remediation audit |
-| FR-011 Build manifests | Architecture and Compiler | FW-107, FW-209 | Schema and reproducibility tests |
+| FR-011 Build manifests | Architecture and Compiler | FW-107, FW-209 | Schema and reproducibility tests; the route manifest's input shape is fixed by [docs/adr/ADR-004-route-module-api-syntax.md](adr/ADR-004-route-module-api-syntax.md) commitment C1, which requires the manifest to be derived from analyzable named exports without executing application modules |
 | FR-012 Private telemetry | Observability | FW-510, FW-607 | Opt-in and payload tests |
 | FR-013 Security PRD | Security | FW-008, FW-009, FW-018, FW-019, FW-118, FW-119, FW-120, FW-121, FW-122, FW-123, FW-124, FW-207, FW-212, FW-213, FW-217, FW-218, FW-308, FW-310, FW-402, FW-406, FW-408, FW-504, FW-509, FW-603, FW-703, FW-709 | Security evidence index: [docs/SECURITY_THREAT_MODEL_APPROVAL.md](SECURITY_THREAT_MODEL_APPROVAL.md) is the approved requirement-level coverage baseline; [docs/SECURITY_EVIDENCE_WORKFLOW.md](SECURITY_EVIDENCE_WORKFLOW.md) defines how it is kept current, what qualifies as evidence, and the accepted-risk process; [docs/SECURITY_ACCEPTED_RISKS.md](SECURITY_ACCEPTED_RISKS.md) is the register of active deferrals; [docs/SUPPLY_CHAIN_POLICY.md](SUPPLY_CHAIN_POLICY.md) is the dependency, license, provenance, and publishing policy for the `SEC-SUPPLY-*` family; [docs/STRICT_SECURITY_MODE.md](STRICT_SECURITY_MODE.md) is the fail-closed rule set and the complete escape-hatch inventory that constrain every requirement family |
 | NFR-001 No Node in universal | Architecture | FW-117 | Dependency and output scanner |
@@ -25,7 +25,7 @@ This matrix maps product requirements to implementation tasks and evidence. Agen
 | NFR-006 Minimal dependencies | Security | FW-019, FW-701, FW-703 | Dependency policy evidence: [docs/SUPPLY_CHAIN_POLICY.md](SUPPLY_CHAIN_POLICY.md) section 4, enforced by `pnpm run deps:check` and `tests/supply-chain-policy.test.ts` |
 | NFR-007 Secret-safe output | Security | FW-120, FW-212, FW-217, FW-504 | Canary-secret scans |
 | NFR-008 Graceful shutdown | Adapters | FW-113, FW-122 | Signal and in-flight request test |
-| NFR-009 Cross-platform development | Quality | FW-115 | Windows/macOS/Linux CI |
+| NFR-009 Cross-platform development | Quality | FW-104, FW-115 | Windows/macOS/Linux CI; [docs/adr/ADR-003-route-filesystem-convention.md](adr/ADR-003-route-filesystem-convention.md) amendments A2 and A3 require folded case and Unicode route-key comparison and reserved-device-name rejection, measured on `win32` only so far and owed a re-run on macOS and Linux |
 | NFR-010 ESM primary | Architecture | FW-005 | Package export tests |
 | NFR-011 Fail closed | Security | FW-018, FW-103, FW-107, FW-118, FW-119, FW-121, FW-124, FW-207, FW-212, FW-213, FW-406, FW-504, FW-509, FW-603 | Fail-closed definition: [docs/STRICT_SECURITY_MODE.md](STRICT_SECURITY_MODE.md) sections 4 and 4.1 supply rules FC-1 to FC-10 and the decision table that every owning task cites, section 5 is the complete escape-hatch inventory, section 6 forbids suppressing a security diagnostic, enforced by `tests/strict-security-mode.test.ts`; the configuration surface is proposed in [docs/adr/ADR-008-security-manifest-and-strict-mode.md](adr/ADR-008-security-manifest-and-strict-mode.md) and is not accepted authority yet; plus the per-task invalid-config security suite |
 

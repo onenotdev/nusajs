@@ -13,6 +13,7 @@
       "!**/.tsbuild",
       "!**/coverage",
       "!graft",
+      "!.freebuff",
       "!spikes/*/results",
       "!pnpm-lock.yaml"
     ]

@@ -210,7 +210,7 @@ Performance:
 ## 15. Open decisions
 
 - ~~First official renderer: React-compatible or a smaller independent renderer.~~ Resolved by `docs/adr/ADR-002-first-official-renderer.md` (`Accepted`): the smaller independent renderer is first, reached only through the FW-111 renderer contract, with a React-compatible renderer as planned follow-on work.
-- Route-module syntax: named exports or `definePage()`.
+- ~~Route-module syntax: named exports or `definePage()`.~~ Resolved by `docs/adr/ADR-004-route-module-api-syntax.md` (`Accepted`): analyzable top-level named exports are the normative surface the compiler reads, typed helpers are optional and type-level, and the compiler never executes a route module to read its configuration. The related filesystem convention is resolved by `docs/adr/ADR-003-route-filesystem-convention.md` (`Accepted`).
 - Whether client navigation is opt-in per project or inferred from capability usage.
 - Stable v1 plugin API boundaries.
 - Distributed cache and durable invalidation semantics.

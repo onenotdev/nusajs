@@ -7,3 +7,7 @@ dist/
 coverage/
 .tsbuild/
 *.tsbuildinfo
+
+# External tooling checkout. It contains a second copy of this repository,
+# including a nested biome.json, so it is excluded from git and from Biome.
+.freebuff/

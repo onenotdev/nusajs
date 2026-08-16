@@ -1,0 +1,508 @@
+{
+  "task": "FW-004",
+  "generatedFor": [
+    "ADR-003",
+    "ADR-004"
+  ],
+  "environment": {
+    "node": "v24.16.0",
+    "platform": "win32",
+    "typescript": "5.9.3"
+  },
+  "logicalRoutes": 9,
+  "logicalBoundaries": 4,
+  "collisionCases": 5,
+  "conventions": [
+    {
+      "id": "suffix",
+      "title": "Option A — role in the filename suffix (`about.page.tsx`, `_layout.tsx`)",
+      "reservedNameCount": 11,
+      "reservedNames": [
+        ".page.*",
+        ".endpoint.*",
+        "_layout.*",
+        "_error.*",
+        "_loading.*",
+        "index.page.*",
+        "(group)/",
+        "[param]",
+        "[[param]]",
+        "[...rest]",
+        "[[...rest]]"
+      ],
+      "groupAliasing": true,
+      "precedenceSource": "computed from the parsed pattern",
+      "maxSpellingsPerUrl": 2,
+      "totalSpellings": 17,
+      "routeCount": 9,
+      "filesystemDerived": true,
+      "collisionCases": [
+        {
+          "id": "duplicate-static",
+          "reason": "two files claim the same static URL",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "same-url",
+              "key": "/about",
+              "files": [
+                "about.page.tsx",
+                "about/index.page.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "renamed-dynamic-parameter",
+          "reason": "two dynamic segments differ only in parameter name",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "same-url",
+              "key": "/blog/[]",
+              "files": [
+                "blog/[id].page.tsx",
+                "blog/[slug].page.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "group-transparency",
+          "reason": "a URL-transparent group hides an otherwise obvious duplicate",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "same-url",
+              "key": "/pricing",
+              "files": [
+                "(marketing)/pricing.page.tsx",
+                "pricing.page.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "optional-versus-static",
+          "reason": "an optional segment also matches the shorter static URL",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "shadowed-url",
+              "key": "/welcome",
+              "files": [
+                "[[lang]]/welcome.page.tsx",
+                "welcome.page.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "optional-catch-all-versus-index",
+          "reason": "an optional catch-all also matches its own parent URL",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "shadowed-url",
+              "key": "/files",
+              "files": [
+                "files.page.tsx",
+                "files/[[...rest]].page.tsx"
+              ]
+            }
+          ]
+        }
+      ],
+      "precedenceTies": [],
+      "canonicalPaths": [
+        "(marketing)/pricing.page.tsx",
+        "[[lang]]/welcome.page.tsx",
+        "about.page.tsx",
+        "api/users.endpoint.ts",
+        "blog.page.tsx",
+        "blog/[slug].page.tsx",
+        "docs/[...path].page.tsx",
+        "files/[[...rest]].page.tsx",
+        "index.page.tsx"
+      ],
+      "boundaryPaths": [
+        "_error.tsx",
+        "_layout.tsx",
+        "_loading.tsx",
+        "blog/_layout.tsx"
+      ]
+    },
+    {
+      "id": "folder",
+      "title": "Option B — role in a fixed filename inside a route folder (`about/page.tsx`)",
+      "reservedNameCount": 10,
+      "reservedNames": [
+        "page.*",
+        "endpoint.*",
+        "layout.*",
+        "error.*",
+        "loading.*",
+        "(group)/",
+        "[param]",
+        "[[param]]",
+        "[...rest]",
+        "[[...rest]]"
+      ],
+      "groupAliasing": true,
+      "precedenceSource": "computed from the parsed pattern",
+      "maxSpellingsPerUrl": 1,
+      "totalSpellings": 9,
+      "routeCount": 9,
+      "filesystemDerived": true,
+      "collisionCases": [
+        {
+          "id": "duplicate-static",
+          "reason": "two files claim the same static URL",
+          "expressibleAsDistinctFiles": false,
+          "preventedByFilesystem": true,
+          "detected": false,
+          "allConflictingFilesNamed": true,
+          "conflicts": []
+        },
+        {
+          "id": "renamed-dynamic-parameter",
+          "reason": "two dynamic segments differ only in parameter name",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "same-url",
+              "key": "/blog/[]",
+              "files": [
+                "blog/[id]/page.tsx",
+                "blog/[slug]/page.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "group-transparency",
+          "reason": "a URL-transparent group hides an otherwise obvious duplicate",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "same-url",
+              "key": "/pricing",
+              "files": [
+                "(marketing)/pricing/page.tsx",
+                "pricing/page.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "optional-versus-static",
+          "reason": "an optional segment also matches the shorter static URL",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "shadowed-url",
+              "key": "/welcome",
+              "files": [
+                "[[lang]]/welcome/page.tsx",
+                "welcome/page.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "optional-catch-all-versus-index",
+          "reason": "an optional catch-all also matches its own parent URL",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "shadowed-url",
+              "key": "/files",
+              "files": [
+                "files/[[...rest]]/page.tsx",
+                "files/page.tsx"
+              ]
+            }
+          ]
+        }
+      ],
+      "precedenceTies": [],
+      "canonicalPaths": [
+        "(marketing)/pricing/page.tsx",
+        "[[lang]]/welcome/page.tsx",
+        "about/page.tsx",
+        "api/users/endpoint.ts",
+        "blog/[slug]/page.tsx",
+        "blog/page.tsx",
+        "docs/[...path]/page.tsx",
+        "files/[[...rest]]/page.tsx",
+        "page.tsx"
+      ],
+      "boundaryPaths": [
+        "blog/layout.tsx",
+        "error.tsx",
+        "layout.tsx",
+        "loading.tsx"
+      ]
+    },
+    {
+      "id": "manifest",
+      "title": "Option C — explicit route manifest, no filesystem meaning",
+      "reservedNameCount": 1,
+      "reservedNames": [
+        "routes.config.ts"
+      ],
+      "groupAliasing": false,
+      "precedenceSource": "declaration order in the manifest",
+      "maxSpellingsPerUrl": 1,
+      "totalSpellings": 9,
+      "routeCount": 9,
+      "filesystemDerived": false,
+      "collisionCases": [
+        {
+          "id": "duplicate-static",
+          "reason": "two files claim the same static URL",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "same-url",
+              "key": "/about",
+              "files": [
+                "modules/duplicate-static-0.tsx",
+                "modules/duplicate-static-1.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "renamed-dynamic-parameter",
+          "reason": "two dynamic segments differ only in parameter name",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "same-url",
+              "key": "/blog/[]",
+              "files": [
+                "modules/renamed-dynamic-parameter-0.tsx",
+                "modules/renamed-dynamic-parameter-1.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "group-transparency",
+          "reason": "a URL-transparent group hides an otherwise obvious duplicate",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "same-url",
+              "key": "/pricing",
+              "files": [
+                "modules/group-transparency-0.tsx",
+                "modules/group-transparency-1.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "optional-versus-static",
+          "reason": "an optional segment also matches the shorter static URL",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "shadowed-url",
+              "key": "/welcome",
+              "files": [
+                "modules/optional-versus-static-0.tsx",
+                "modules/optional-versus-static-1.tsx"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "optional-catch-all-versus-index",
+          "reason": "an optional catch-all also matches its own parent URL",
+          "expressibleAsDistinctFiles": true,
+          "preventedByFilesystem": false,
+          "detected": true,
+          "allConflictingFilesNamed": true,
+          "conflicts": [
+            {
+              "kind": "shadowed-url",
+              "key": "/files",
+              "files": [
+                "modules/optional-catch-all-versus-index-0.tsx",
+                "modules/optional-catch-all-versus-index-1.tsx"
+              ]
+            }
+          ]
+        }
+      ],
+      "precedenceTies": [],
+      "canonicalPaths": [
+        "modules/about.tsx",
+        "modules/api.users.tsx",
+        "modules/blog.index.tsx",
+        "modules/blog.post.tsx",
+        "modules/docs.tree.tsx",
+        "modules/files.browser.tsx",
+        "modules/home.tsx",
+        "modules/localised.home.tsx",
+        "modules/marketing.pricing.tsx"
+      ],
+      "boundaryPaths": [
+        "modules/blog.layout.tsx",
+        "modules/root.error.tsx",
+        "modules/root.layout.tsx",
+        "modules/root.loading.tsx"
+      ]
+    }
+  ],
+  "filesystem": {
+    "platform": "win32",
+    "createdPaths": 26,
+    "rejectedPaths": [],
+    "caseInsensitive": true,
+    "unicodeFolding": false,
+    "reservedDeviceNames": [
+      {
+        "name": "con",
+        "asSuffixFile": "created",
+        "asBareName": "created",
+        "asRouteFolder": "created"
+      },
+      {
+        "name": "nul",
+        "asSuffixFile": "created",
+        "asBareName": "created",
+        "asRouteFolder": "created"
+      },
+      {
+        "name": "aux",
+        "asSuffixFile": "created",
+        "asBareName": "created",
+        "asRouteFolder": "created"
+      },
+      {
+        "name": "prn",
+        "asSuffixFile": "created",
+        "asBareName": "created",
+        "asRouteFolder": "created"
+      },
+      {
+        "name": "com1",
+        "asSuffixFile": "created",
+        "asBareName": "created",
+        "asRouteFolder": "created"
+      }
+    ]
+  },
+  "moduleApis": {
+    "namedExports": {
+      "literal": {
+        "outcome": "read",
+        "steps": 2,
+        "keys": [
+          "runtime",
+          "rendering",
+          "revalidate"
+        ],
+        "crossModule": false
+      },
+      "computed": {
+        "outcome": "diagnostic",
+        "steps": 3,
+        "keys": [],
+        "crossModule": false
+      },
+      "crossModuleResolutionRequired": false,
+      "silentMissWithNaiveMatcher": false
+    },
+    "definePage": {
+      "literalNaive": {
+        "outcome": "read",
+        "steps": 4,
+        "keys": [
+          "runtime",
+          "rendering",
+          "revalidate",
+          "params",
+          "loader",
+          "component"
+        ],
+        "crossModule": false
+      },
+      "aliasedNaive": {
+        "outcome": "not-found",
+        "steps": 3,
+        "keys": [],
+        "crossModule": false
+      },
+      "literalResolved": {
+        "outcome": "read",
+        "steps": 5,
+        "keys": [
+          "runtime",
+          "rendering",
+          "revalidate",
+          "params",
+          "loader",
+          "component"
+        ],
+        "crossModule": true
+      },
+      "aliasedResolved": {
+        "outcome": "read",
+        "steps": 5,
+        "keys": [
+          "runtime",
+          "rendering",
+          "params",
+          "component"
+        ],
+        "crossModule": true
+      },
+      "crossModuleResolutionRequired": true,
+      "silentMissWithNaiveMatcher": true
+    }
+  },
+  "failures": []
+}
