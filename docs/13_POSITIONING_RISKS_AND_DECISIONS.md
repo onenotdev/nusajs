@@ -55,7 +55,7 @@ The IDs below are `RESERVED`; they are not accepted authority until a correspond
 - ADR-003: Route filesystem convention. `Accepted` — `docs/adr/ADR-003-route-filesystem-convention.md`. Role-suffixed filenames with three amendments: one canonical spelling per URL, folded case and Unicode comparison, and reserved-device-name rejection.
 - ADR-004: Route-module API syntax. `Accepted` — `docs/adr/ADR-004-route-module-api-syntax.md`. Analyzable named exports are normative; typed helpers are optional and the compiler never requires them.
 - ADR-005: Monorepo and toolchain. `Accepted` — `docs/adr/ADR-005-monorepo-and-toolchain.md`.
-- ADR-006: Supported runtime and TypeScript policy.
+- ADR-006: Supported runtime and TypeScript policy. `Accepted` — `docs/adr/ADR-006-supported-runtime-and-typescript-policy.md`. The Node floor is the oldest LTS line still inside its upstream support window, currently `22.12.0`; Node and static output are tier 1, edge adapters tier 2, Bun and Deno tier 3 and not supported; the TypeScript floor is 5.8 with pre-release compilers informational.
 - ADR-007: Error-code taxonomy.
 - ADR-008: Security-manifest schema and strict-mode behavior. `Proposed` — `docs/adr/ADR-008-security-manifest-and-strict-mode.md`. Part 1, strict-mode behavior, is proposed by FW-018; part 2, the security-manifest schema, is owned by FW-107 and is deliberately undecided. `Proposed` is not accepted authority.
 

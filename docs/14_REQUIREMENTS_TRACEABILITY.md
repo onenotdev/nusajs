@@ -18,7 +18,7 @@ This matrix maps product requirements to implementation tasks and evidence. Agen
 | FR-012 Private telemetry | Observability | FW-510, FW-607 | Opt-in and payload tests |
 | FR-013 Security PRD | Security | FW-008, FW-009, FW-018, FW-019, FW-118, FW-119, FW-120, FW-121, FW-122, FW-123, FW-124, FW-207, FW-212, FW-213, FW-217, FW-218, FW-308, FW-310, FW-402, FW-406, FW-408, FW-504, FW-509, FW-603, FW-703, FW-709 | Security evidence index: [docs/SECURITY_THREAT_MODEL_APPROVAL.md](SECURITY_THREAT_MODEL_APPROVAL.md) is the approved requirement-level coverage baseline; [docs/SECURITY_EVIDENCE_WORKFLOW.md](SECURITY_EVIDENCE_WORKFLOW.md) defines how it is kept current, what qualifies as evidence, and the accepted-risk process; [docs/SECURITY_ACCEPTED_RISKS.md](SECURITY_ACCEPTED_RISKS.md) is the register of active deferrals; [docs/SUPPLY_CHAIN_POLICY.md](SUPPLY_CHAIN_POLICY.md) is the dependency, license, provenance, and publishing policy for the `SEC-SUPPLY-*` family; [docs/STRICT_SECURITY_MODE.md](STRICT_SECURITY_MODE.md) is the fail-closed rule set and the complete escape-hatch inventory that constrain every requirement family |
 | NFR-001 No Node in universal | Architecture | FW-117 | Dependency and output scanner |
-| NFR-002 TypeScript strict | Quality | FW-002 | CI type check |
+| NFR-002 TypeScript strict | Quality | FW-002, FW-005 | CI type check; the supported compiler range and the rule that strict mode is not configurable are fixed by [docs/adr/ADR-006-supported-runtime-and-typescript-policy.md](adr/ADR-006-supported-runtime-and-typescript-policy.md) (`Accepted`) commitments C6 to C8 and stated in [docs/SUPPORT_POLICY.md](SUPPORT_POLICY.md) section 4, enforced by `tests/support-policy.test.ts` |
 | NFR-003 Reproducible builds | Compiler | FW-114 | Double-build hash test |
 | NFR-004 Documented public API | DX and Quality | FW-701 | API report and docs compilation |
 | NFR-005 Opt-in telemetry | Observability | FW-607 | No-network default test |
@@ -26,7 +26,7 @@ This matrix maps product requirements to implementation tasks and evidence. Agen
 | NFR-007 Secret-safe output | Security | FW-120, FW-212, FW-217, FW-504 | Canary-secret scans |
 | NFR-008 Graceful shutdown | Adapters | FW-113, FW-122 | Signal and in-flight request test |
 | NFR-009 Cross-platform development | Quality | FW-104, FW-115 | Windows/macOS/Linux CI; [docs/adr/ADR-003-route-filesystem-convention.md](adr/ADR-003-route-filesystem-convention.md) amendments A2 and A3 require folded case and Unicode route-key comparison and reserved-device-name rejection, measured on `win32` only so far and owed a re-run on macOS and Linux |
-| NFR-010 ESM primary | Architecture | FW-005 | Package export tests |
+| NFR-010 ESM primary | Architecture | FW-005 | Package export tests; ESM-only distribution is commitment C1 and section 4 of [docs/SUPPORT_POLICY.md](SUPPORT_POLICY.md), which is why the Node floor in [docs/adr/ADR-006-supported-runtime-and-typescript-policy.md](adr/ADR-006-supported-runtime-and-typescript-policy.md) (`Accepted`) is pinned to the first release with unflagged `require(esm)` rather than to a major boundary, enforced by `tests/support-policy.test.ts` |
 | NFR-011 Fail closed | Security | FW-018, FW-103, FW-107, FW-118, FW-119, FW-121, FW-124, FW-207, FW-212, FW-213, FW-406, FW-504, FW-509, FW-603 | Fail-closed definition: [docs/STRICT_SECURITY_MODE.md](STRICT_SECURITY_MODE.md) sections 4 and 4.1 supply rules FC-1 to FC-10 and the decision table that every owning task cites, section 5 is the complete escape-hatch inventory, section 6 forbids suppressing a security diagnostic, enforced by `tests/strict-security-mode.test.ts`; the configuration surface is proposed in [docs/adr/ADR-008-security-manifest-and-strict-mode.md](adr/ADR-008-security-manifest-and-strict-mode.md) and is not accepted authority yet; plus the per-task invalid-config security suite |
 
 ## Security traceability
@@ -54,7 +54,7 @@ The table below maps requirement families to their originating tasks. It is a su
 
 | Acceptance criteria | Initial tasks | Required evidence |
 |---|---|---|
-| AC-ARCH-01–06 | FW-002, FW-005, FW-101, FW-107, FW-109, FW-117 | Dependency scans, manifest schema tests, request-isolation tests, capability diagnostics |
+| AC-ARCH-01–06 | FW-002, FW-005, FW-101, FW-107, FW-109, FW-117 | Dependency scans, manifest schema tests, request-isolation tests, capability diagnostics; the supported-runtime tiers that define which platforms those tests must cover are fixed by [docs/adr/ADR-006-supported-runtime-and-typescript-policy.md](adr/ADR-006-supported-runtime-and-typescript-policy.md) (`Accepted`) commitment C5 and tabulated in [docs/SUPPORT_POLICY.md](SUPPORT_POLICY.md) section 3, enforced by `tests/support-policy.test.ts` |
 | AC-ROUTE-01–07 | FW-004, FW-104, FW-105, FW-106, FW-108, FW-118, FW-301, FW-302, FW-303, FW-304 | Unit/type fixtures, collision tests, Routes-10k results, malicious URL corpus, navigation browser tests |
 | AC-RENDER-01–07 | FW-111, FW-112, FW-122, FW-210, FW-213, FW-306, FW-307, FW-401, FW-402, FW-404, FW-405, FW-406 | Production artifact scans, renderer conformance, serialization corpus, browser and concurrency tests |
 | AC-DATA-01–06 | FW-203, FW-204, FW-213, FW-217, FW-501, FW-502, FW-503, FW-504 | Type tests, no-JS form E2E, validation/CSRF tests, stable-ID and redaction tests |

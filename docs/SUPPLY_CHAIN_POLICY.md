@@ -236,7 +236,7 @@ The scanner found a real critical advisory on the first run against a four-packa
 
 ## 13. Residual risk accepted at M0
 
-- No gate in section 10 has ever executed, because version control is not initialized. `AR-001` is renewed by this task rather than retired, and its renewal names this document as the specification whose execution is still missing.
+- No gate in section 10 has ever executed. `AR-001` is renewed by this task rather than retired, and its renewal names this document as the specification whose execution is still missing. When this was written the cause was that version control was not initialized; FW-005 found that it is, and amended `AR-001` accordingly. The gate remains unexecuted so far as this environment can observe, so the sentence above still holds and its cause is now recorded in that record rather than here.
 - Secret scanning is specified and not enforced. This is the largest gap in `SEC-SUPPLY-002` and it belongs to FW-120.
 - The license checker reads the declared license field. A package that declares a license it does not honor is out of reach of any mechanical check, and the ownership review in section 4 is the only defense.
 - `pnpm audit` depends on the registry's advisory database. Absence of a finding is absence of a published advisory, not evidence of safety, and `docs/09_SECURITY_PRD.md` section 28 already says no scanner can mark the framework secure.

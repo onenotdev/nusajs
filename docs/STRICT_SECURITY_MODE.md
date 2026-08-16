@@ -143,7 +143,7 @@ The reason for the prohibition is the prerelease gate in `docs/09_SECURITY_PRD.m
 | v1 release candidate | the shipped public API contains no escape hatch absent from section 5 | FW-701 public API and security surface audit | specified; unexercised |
 | v1 release candidate | no suppression mechanism for a security diagnostic exists in the public API | FW-701, and the independent audit FW-703 | specified; unexercised |
 
-No condition in this table has ever executed, for the same reason recorded in `docs/SUPPLY_CHAIN_POLICY.md` section 13: version control is not initialized, continuous integration has never run, and no framework code exists to gate. Under `docs/SECURITY_EVIDENCE_WORKFLOW.md` section 3.1 a specified gate is not evidence.
+No condition in this table has ever executed, for the same reason recorded in `docs/SUPPLY_CHAIN_POLICY.md` section 13: no continuous-integration run has been observed, and no framework code exists to gate. Under `docs/SECURITY_EVIDENCE_WORKFLOW.md` section 3.1 a specified gate is not evidence.
 
 ## 8. What this document discharges, and what it does not
 
@@ -196,4 +196,4 @@ Interpretation numbering continues from `docs/SECURITY_EVIDENCE_WORKFLOW.md`, wh
 - The extraction that produced section 5 read requirement text for exception-permitting clauses. A requirement that permits an exception without using such a clause would have been missed; the mechanical check in section 9 detects a fabricated row but cannot detect a missing one. FW-701's public API audit is the compensating control.
 - Two of the fourteen rows, `SEC-SSRF-003` and one half of `SEC-FILE-004`'s subject matter, belong to requirements that `docs/SECURITY_EVIDENCE_WORKFLOW.md` section 5 records as conditional. Their escape hatches are specified before the integrations that would use them exist, so the specification is untested against a real case.
 - The prohibition in section 6 is the clause most likely to be attacked later, because the first team blocked by a security warning it considers a false positive will ask for a suppression mechanism. This document deliberately offers no pressure valve, which raises the chance the rule is amended under pressure rather than on merit.
-- No gate in section 7 has ever executed. `AR-001` already covers the general case — version control is not initialized — and this task does not renew it again, because FW-019 renewed it and `docs/SECURITY_EVIDENCE_WORKFLOW.md` section 6.4 permits only two renewals before escalation to the core maintainers.
+- No gate in section 7 has ever executed. `AR-001` already covers the general case — no continuous-integration run has been observed — and this task does not renew it again, because FW-019 renewed it and `docs/SECURITY_EVIDENCE_WORKFLOW.md` section 6.4 permits only two renewals before escalation to the core maintainers.
