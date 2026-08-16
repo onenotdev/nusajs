@@ -1,0 +1,31 @@
+{
+  "name": "nusajs-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Workspace skeleton for the nusajs framework. Contains no framework features.",
+  "license": "MIT",
+  "packageManager": "pnpm@11.5.1",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "check": "biome check .",
+    "typecheck": "tsc --build --force tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deps:audit": "pnpm audit --audit-level high",
+    "deps:licenses": "node scripts/check-licenses.mjs",
+    "deps:check": "pnpm run deps:audit && pnpm run deps:licenses",
+    "verify": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run deps:check"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.11",
+    "@types/node": "24.10.1",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

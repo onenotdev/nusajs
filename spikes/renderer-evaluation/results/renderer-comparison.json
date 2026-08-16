@@ -1,0 +1,204 @@
+{
+  "meta": {
+    "generatedAt": "2026-08-15T04:10:19.957Z",
+    "node": "v24.16.0",
+    "platform": "win32-x64",
+    "esbuild": "0.28.2",
+    "ssrWarmup": 20,
+    "ssrIterations": 200
+  },
+  "results": [
+    {
+      "id": "react",
+      "title": "React-compatible (react + react-dom)",
+      "ssr": {
+        "iterations": 200,
+        "msPerRender": 0.049,
+        "rendersPerSecond": 20388,
+        "interactiveHtmlBytes": 780,
+        "staticHtmlBytes": 727,
+        "serverBundleBytes": 557101
+      },
+      "clientBundle": {
+        "raw": 195174,
+        "gzip": 60891,
+        "brotli": 52331
+      },
+      "hydration": {
+        "before": "Clicks: 0",
+        "after": "Clicks: 1",
+        "interactive": true,
+        "error": null
+      },
+      "escaping": {
+        "interactive": {
+          "createdScriptElement": false,
+          "createdImageElement": false,
+          "escapedAngleInText": true,
+          "escapedQuoteInAttribute": true,
+          "escapesGreaterThan": true,
+          "renderedFragment": "<section data-testid=\"hostile\" title=\"&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;img src=x onerror=alert(2)&gt;\"><p>&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;img src=x onerror=alert(2)&gt;</p><a href=\"/search?q=%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E%3Cimg%20src%3Dx%20onerror%3Dalert(2)%3E\">link</a></section>",
+          "escaped": true
+        },
+        "static": {
+          "createdScriptElement": false,
+          "createdImageElement": false,
+          "escapedAngleInText": true,
+          "escapedQuoteInAttribute": true,
+          "escapesGreaterThan": true,
+          "renderedFragment": "<section data-testid=\"hostile\" title=\"&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;img src=x onerror=alert(2)&gt;\"><p>&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;img src=x onerror=alert(2)&gt;</p><a href=\"/search?q=%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E%3Cimg%20src%3Dx%20onerror%3Dalert(2)%3E\">link</a></section>",
+          "escaped": true
+        }
+      },
+      "staticPage": {
+        "clientBytes": 0,
+        "htmlHasScriptTag": false,
+        "zeroJavaScript": true
+      },
+      "licenses": [
+        {
+          "name": "react",
+          "version": "19.2.8",
+          "license": "MIT",
+          "repository": "https://github.com/react/react.git"
+        },
+        {
+          "name": "react-dom",
+          "version": "19.2.8",
+          "license": "MIT",
+          "repository": "https://github.com/react/react.git"
+        },
+        {
+          "name": "scheduler",
+          "version": "0.27.0",
+          "license": "MIT",
+          "repository": "https://github.com/facebook/react.git"
+        }
+      ]
+    },
+    {
+      "id": "preact",
+      "title": "Small independent (preact + preact-render-to-string)",
+      "ssr": {
+        "iterations": 200,
+        "msPerRender": 0.0262,
+        "rendersPerSecond": 38217,
+        "interactiveHtmlBytes": 740,
+        "staticHtmlBytes": 703,
+        "serverBundleBytes": 31559
+      },
+      "clientBundle": {
+        "raw": 14205,
+        "gzip": 5960,
+        "brotli": 5389
+      },
+      "hydration": {
+        "before": "Clicks: 0",
+        "after": "Clicks: 1",
+        "interactive": true,
+        "error": null
+      },
+      "escaping": {
+        "interactive": {
+          "createdScriptElement": false,
+          "createdImageElement": false,
+          "escapedAngleInText": true,
+          "escapedQuoteInAttribute": true,
+          "escapesGreaterThan": false,
+          "renderedFragment": "<section data-testid=\"hostile\" title=\"&quot;>&lt;script>alert(1)&lt;/script>&lt;img src=x onerror=alert(2)>\"><p>&quot;>&lt;script>alert(1)&lt;/script>&lt;img src=x onerror=alert(2)></p><a href=\"/search?q=%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E%3Cimg%20src%3Dx%20onerror%3Dalert(2)%3E\">link</a></section>",
+          "escaped": true
+        },
+        "static": {
+          "createdScriptElement": false,
+          "createdImageElement": false,
+          "escapedAngleInText": true,
+          "escapedQuoteInAttribute": true,
+          "escapesGreaterThan": false,
+          "renderedFragment": "<section data-testid=\"hostile\" title=\"&quot;>&lt;script>alert(1)&lt;/script>&lt;img src=x onerror=alert(2)>\"><p>&quot;>&lt;script>alert(1)&lt;/script>&lt;img src=x onerror=alert(2)></p><a href=\"/search?q=%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E%3Cimg%20src%3Dx%20onerror%3Dalert(2)%3E\">link</a></section>",
+          "escaped": true
+        }
+      },
+      "staticPage": {
+        "clientBytes": 0,
+        "htmlHasScriptTag": false,
+        "zeroJavaScript": true
+      },
+      "licenses": [
+        {
+          "name": "preact",
+          "version": "10.29.8",
+          "license": "MIT",
+          "repository": "preactjs/preact"
+        },
+        {
+          "name": "preact-render-to-string",
+          "version": "6.7.0",
+          "license": "MIT",
+          "repository": "https://github.com/preactjs/preact-render-to-string"
+        }
+      ]
+    },
+    {
+      "id": "compat",
+      "title": "React API on the small runtime (preact/compat)",
+      "ssr": {
+        "iterations": 200,
+        "msPerRender": 0.0905,
+        "rendersPerSecond": 11049,
+        "interactiveHtmlBytes": 740,
+        "staticHtmlBytes": 703,
+        "serverBundleBytes": 39308
+      },
+      "clientBundle": {
+        "raw": 20125,
+        "gzip": 8109,
+        "brotli": 7366
+      },
+      "hydration": {
+        "before": "Clicks: 0",
+        "after": "Clicks: 1",
+        "interactive": true,
+        "error": null
+      },
+      "escaping": {
+        "interactive": {
+          "createdScriptElement": false,
+          "createdImageElement": false,
+          "escapedAngleInText": true,
+          "escapedQuoteInAttribute": true,
+          "escapesGreaterThan": false,
+          "renderedFragment": "<section data-testid=\"hostile\" title=\"&quot;>&lt;script>alert(1)&lt;/script>&lt;img src=x onerror=alert(2)>\"><p>&quot;>&lt;script>alert(1)&lt;/script>&lt;img src=x onerror=alert(2)></p><a href=\"/search?q=%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E%3Cimg%20src%3Dx%20onerror%3Dalert(2)%3E\">link</a></section>",
+          "escaped": true
+        },
+        "static": {
+          "createdScriptElement": false,
+          "createdImageElement": false,
+          "escapedAngleInText": true,
+          "escapedQuoteInAttribute": true,
+          "escapesGreaterThan": false,
+          "renderedFragment": "<section data-testid=\"hostile\" title=\"&quot;>&lt;script>alert(1)&lt;/script>&lt;img src=x onerror=alert(2)>\"><p>&quot;>&lt;script>alert(1)&lt;/script>&lt;img src=x onerror=alert(2)></p><a href=\"/search?q=%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E%3Cimg%20src%3Dx%20onerror%3Dalert(2)%3E\">link</a></section>",
+          "escaped": true
+        }
+      },
+      "staticPage": {
+        "clientBytes": 0,
+        "htmlHasScriptTag": false,
+        "zeroJavaScript": true
+      },
+      "licenses": [
+        {
+          "name": "preact",
+          "version": "10.29.8",
+          "license": "MIT",
+          "repository": "preactjs/preact"
+        },
+        {
+          "name": "preact-render-to-string",
+          "version": "6.7.0",
+          "license": "MIT",
+          "repository": "https://github.com/preactjs/preact-render-to-string"
+        }
+      ]
+    }
+  ]
+}

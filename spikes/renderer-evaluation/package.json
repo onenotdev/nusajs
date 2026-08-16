@@ -1,0 +1,19 @@
+{
+  "name": "@nusajs-spike/renderer-evaluation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Throwaway measurement spike for FW-003 / ADR-002. Not a framework package and never published.",
+  "scripts": {
+    "measure": "node ./measure.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "happy-dom": "20.11.2",
+    "preact": "10.29.8",
+    "preact-render-to-string": "6.7.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}

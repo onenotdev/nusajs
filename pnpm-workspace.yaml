@@ -1,0 +1,12 @@
+packages:
+  - "packages/*"
+  - "examples/*"
+  - "spikes/*"
+
+# Install scripts are denied by default. Each entry below is an explicitly
+# reviewed exception required by the development toolchain (ADR-005, SEC-SUPPLY-005).
+# esbuild: denied. Its postinstall only resolves the platform binary that pnpm
+# already installs through optional dependencies, so the script is unnecessary
+# and is not granted execution.
+allowBuilds:
+  esbuild: false
