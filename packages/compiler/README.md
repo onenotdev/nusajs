@@ -22,3 +22,9 @@ versioned build contracts of `docs/02_ARCHITECTURE.md` — deterministic route i
 name-only security posture with no secret values (ADR-008 part 2), and a closed capability
 vocabulary. `assertManifestSupported()` rejects unsupported schema major versions before any
 consumer misreads a future manifest.
+
+`generateRouteTypes()` turns the route manifest into a deterministic TypeScript module. The
+generated module exports `RouteId`, `RouteParams`, and a type-safe `href()` function keyed by stable
+route identity. Dynamic values are percent-encoded as individual path segments; catch-all values
+are non-empty arrays, optional values may be omitted, and missing, extra, or malformed runtime
+parameters fail closed with `NUSA-ROUTE-0001`.
