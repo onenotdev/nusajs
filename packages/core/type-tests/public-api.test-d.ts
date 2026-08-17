@@ -13,7 +13,10 @@ import {
   type SourcePosition,
   type SourceRange,
   type CorePackageName,
-  type CoreVersion
+  type CoreVersion,
+  createRequestContext,
+  type CreateRequestContextInput,
+  type RequestContext
 } from "@nusajs/core";
 
 const packageName: CorePackageName = CORE_PACKAGE_NAME;
@@ -53,3 +56,14 @@ void text;
 void json;
 void production;
 void invalidCode;
+
+const contextInput: CreateRequestContextInput<{ binding: string }> = {
+  request: new Request("https://example.test/"),
+  env: { binding: "value" },
+  requestId: "request_1234"
+};
+const context: Readonly<RequestContext<{ binding: string }>> = createRequestContext(contextInput);
+context.env.binding satisfies string;
+
+// @ts-expect-error params values are strings
+createRequestContext({ ...contextInput, params: { id: 123 } });

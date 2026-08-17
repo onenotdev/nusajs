@@ -31,3 +31,5 @@ export type {
   SourcePosition,
   SourceRange
 } from "./diagnostics.js";
+export { createRequestContext } from "./request-context.js";
+export type { CreateRequestContextInput, RequestContext } from "./request-context.js";

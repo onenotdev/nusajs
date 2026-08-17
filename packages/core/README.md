@@ -34,3 +34,15 @@ const safe = formatProductionDiagnostic(diagnostic.code, "request_1234");
 ```
 
 Only the package root is public. Source paths, `internal/*`, and undeclared subpaths are private.
+
+```ts
+import { createRequestContext } from "@nusajs/core";
+
+const context = createRequestContext({
+	request: new Request("https://example.com/"),
+	env: { region: "local" },
+	requestId: "request_1234"
+});
+
+context.locals.set(Symbol.for("example"), "request-local value");
+```
