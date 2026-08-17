@@ -15,12 +15,6 @@ export type CorePackageName = typeof CORE_PACKAGE_NAME;
 /** The literal type of the coordinated framework version. */
 export type CoreVersion = typeof CORE_VERSION;
 
-export {
-  createDiagnostic,
-  formatDevelopmentDiagnostic,
-  formatProductionDiagnostic,
-  serializeDevelopmentDiagnostic
-} from "./diagnostics.js";
 export type {
   ActiveDiagnosticCode,
   Diagnostic,
@@ -31,17 +25,12 @@ export type {
   SourcePosition,
   SourceRange
 } from "./diagnostics.js";
-export { createRequestContext } from "./request-context.js";
-export type { CreateRequestContextInput, RequestContext } from "./request-context.js";
-export { createRouteMatcher } from "./route-matcher.js";
-export type {
-  MatchRoute,
-  MatchRouteSegment,
-  MatchRouteSegmentKind,
-  RouteMatch,
-  RouteMatcher
-} from "./route-matcher.js";
-export { defineRenderer } from "./renderer.js";
+export {
+  createDiagnostic,
+  formatDevelopmentDiagnostic,
+  formatProductionDiagnostic,
+  serializeDevelopmentDiagnostic
+} from "./diagnostics.js";
 export type {
   BufferedRenderResult,
   Renderer,
@@ -50,3 +39,23 @@ export type {
   RenderResult,
   StreamingRenderResult
 } from "./renderer.js";
+export { defineRenderer } from "./renderer.js";
+export type { CreateRequestContextInput, RequestContext } from "./request-context.js";
+export { createRequestContext } from "./request-context.js";
+export type {
+  CreateRequestHandlerOptions,
+  EndpointRouteBinding,
+  HandleRequestInput,
+  PageRouteBinding,
+  RequestHandler,
+  RequestRouteBinding
+} from "./request-handler.js";
+export { createRequestHandler } from "./request-handler.js";
+export type {
+  MatchRoute,
+  MatchRouteSegment,
+  MatchRouteSegmentKind,
+  RouteMatch,
+  RouteMatcher
+} from "./route-matcher.js";
+export { createRouteMatcher } from "./route-matcher.js";

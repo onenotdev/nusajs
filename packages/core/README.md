@@ -95,3 +95,48 @@ Malformed escapes, encoded separators, dot segments, duplicate or non-root trail
 controls, query/fragment syntax, and over-limit pathnames fail closed with no match. Parameters are
 decoded as strict UTF-8, normalized to NFC, copied into a frozen null-prototype record, and remain
 untrusted application input.
+
+Compose those contracts into one endpoint-first universal request pipeline. Adapters must preserve
+and pass the raw pathname separately; endpoint responses pass through unchanged, while page values
+are converted through the selected renderer:
+
+```ts
+import { createRequestHandler, createRouteMatcher, defineRenderer } from "@nusajs/core";
+
+const page = {
+	kind: "page",
+	pattern: "/",
+	segments: [],
+	specificity: [],
+	file: "index.page.ts"
+} as const;
+const matcher = createRouteMatcher([page]);
+const renderer = defineRenderer({
+	id: "example",
+	deliveries: new Set(["buffered"]),
+	render: async ({ value }) => ({
+		delivery: "buffered" as const,
+		body: String(value),
+		status: 200,
+		headers: new Headers({ "content-type": "text/html; charset=utf-8" }),
+		close: () => undefined
+	})
+});
+const pipeline = createRequestHandler({
+	matcher,
+	renderer,
+	bindings: [{ route: page, load: () => "<h1>Hello</h1>" }]
+});
+
+const response = await pipeline.handle({
+	request: new Request("https://example.test/"),
+	pathname: "/",
+	env: {},
+	requestId: "request_1234"
+});
+```
+
+Pages support `GET` and `HEAD`; endpoint roles are selected first for every method. Missing and
+malformed paths return a plain-text 404. Handler and renderer exceptions propagate to the adapter,
+which owns production-safe redaction. Streaming pages preserve backpressure and release renderer
+resources on completion, cancellation, source failure, or request abort.

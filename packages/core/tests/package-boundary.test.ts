@@ -1,5 +1,5 @@
-import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -53,6 +53,7 @@ describe("core package boundary", () => {
       "index.d.ts",
       "diagnostics.d.ts",
       "request-context.d.ts",
+      "request-handler.d.ts",
       "route-matcher.d.ts",
       "renderer.d.ts"
     ]

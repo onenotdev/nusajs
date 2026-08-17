@@ -1,32 +1,36 @@
 import {
   type ActiveDiagnosticCode,
+  type BufferedRenderResult,
   CORE_PACKAGE_NAME,
   CORE_VERSION,
+  type CorePackageName,
+  type CoreVersion,
+  type CreateRequestContextInput,
+  type CreateRequestHandlerOptions,
   createDiagnostic,
+  createRequestContext,
+  createRequestHandler,
+  createRouteMatcher,
   type Diagnostic,
   type DiagnosticCode,
   type DiagnosticSeverity,
+  defineRenderer,
   formatDevelopmentDiagnostic,
   formatProductionDiagnostic,
-  type ProductionDiagnostic,
-  serializeDevelopmentDiagnostic,
-  type SourcePosition,
-  type SourceRange,
-  type CorePackageName,
-  type CoreVersion,
-  createRequestContext,
-  type CreateRequestContextInput,
-  type RequestContext,
-  createRouteMatcher,
+  type HandleRequestInput,
   type MatchRoute,
-  type RouteMatch,
-  type RouteMatcher,
-  defineRenderer,
-  type BufferedRenderResult,
+  type ProductionDiagnostic,
   type Renderer,
   type RenderInput,
   type RenderResult,
-  type StreamingRenderResult
+  type RequestContext,
+  type RequestHandler,
+  type RouteMatch,
+  type RouteMatcher,
+  type SourcePosition,
+  type SourceRange,
+  type StreamingRenderResult,
+  serializeDevelopmentDiagnostic
 } from "@nusajs/core";
 
 const packageName: CorePackageName = CORE_PACKAGE_NAME;
@@ -123,3 +127,49 @@ routeMatch?.params["id"] satisfies string | undefined;
 
 // @ts-expect-error route role must be explicit and valid
 routeMatcher.match("/users/123", "handler");
+
+const pipelineRoutes = [
+  { ...matchRoutes[0], kind: "page" },
+  {
+    kind: "endpoint",
+    pattern: "/api",
+    segments: [{ kind: "static", value: "api" }],
+    specificity: [4],
+    file: "api.endpoint.ts"
+  }
+] as const satisfies readonly MatchRoute[];
+const pipelineMatcher = createRouteMatcher<(typeof pipelineRoutes)[number]>(pipelineRoutes);
+const pipelineOptions: CreateRequestHandlerOptions<
+  (typeof pipelineRoutes)[number],
+  string,
+  { binding: string }
+> = {
+  matcher: pipelineMatcher,
+  renderer,
+  bindings: [
+    { route: pipelineRoutes[0], load: (pageContext) => pageContext.env.binding },
+    { route: pipelineRoutes[1], handle: async () => new Response("api") }
+  ]
+};
+const pipeline: Readonly<
+  RequestHandler<(typeof pipelineRoutes)[number], string, { binding: string }>
+> = createRequestHandler(pipelineOptions);
+const handleInput: HandleRequestInput<{ binding: string }> = {
+  request: new Request("https://example.test/users/123"),
+  pathname: "/users/123",
+  env: { binding: "value" },
+  requestId: "request_1234"
+};
+const pipelineResponse: Response = await pipeline.handle(handleInput);
+void pipelineResponse;
+
+createRequestHandler({
+  ...pipelineOptions,
+  bindings: [
+    {
+      route: pipelineRoutes[1],
+      // @ts-expect-error endpoint handlers must return Response
+      handle: () => "bad"
+    }
+  ]
+});

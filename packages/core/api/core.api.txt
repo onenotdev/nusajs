@@ -12,14 +12,16 @@ export declare const CORE_VERSION: "0.0.0";
 export type CorePackageName = typeof CORE_PACKAGE_NAME;
 /** The literal type of the coordinated framework version. */
 export type CoreVersion = typeof CORE_VERSION;
-export { createDiagnostic, formatDevelopmentDiagnostic, formatProductionDiagnostic, serializeDevelopmentDiagnostic } from "./diagnostics.js";
 export type { ActiveDiagnosticCode, Diagnostic, DiagnosticCode, DiagnosticInput, DiagnosticSeverity, ProductionDiagnostic, SourcePosition, SourceRange } from "./diagnostics.js";
-export { createRequestContext } from "./request-context.js";
-export type { CreateRequestContextInput, RequestContext } from "./request-context.js";
-export { createRouteMatcher } from "./route-matcher.js";
-export type { MatchRoute, MatchRouteSegment, MatchRouteSegmentKind, RouteMatch, RouteMatcher } from "./route-matcher.js";
-export { defineRenderer } from "./renderer.js";
+export { createDiagnostic, formatDevelopmentDiagnostic, formatProductionDiagnostic, serializeDevelopmentDiagnostic } from "./diagnostics.js";
 export type { BufferedRenderResult, Renderer, RendererDelivery, RenderInput, RenderResult, StreamingRenderResult } from "./renderer.js";
+export { defineRenderer } from "./renderer.js";
+export type { CreateRequestContextInput, RequestContext } from "./request-context.js";
+export { createRequestContext } from "./request-context.js";
+export type { CreateRequestHandlerOptions, EndpointRouteBinding, HandleRequestInput, PageRouteBinding, RequestHandler, RequestRouteBinding } from "./request-handler.js";
+export { createRequestHandler } from "./request-handler.js";
+export type { MatchRoute, MatchRouteSegment, MatchRouteSegmentKind, RouteMatch, RouteMatcher } from "./route-matcher.js";
+export { createRouteMatcher } from "./route-matcher.js";
 
 ## diagnostics.d.ts
 /** The severities supported by NusaJS diagnostics. */
@@ -120,6 +122,56 @@ export interface CreateRequestContextInput<Env = unknown> {
  * must supply request-local environment state where mutation is possible.
  */
 export declare function createRequestContext<Env>(input: CreateRequestContextInput<Env>): Readonly<RequestContext<Env>>;
+
+## request-handler.d.ts
+import type { Renderer } from "./renderer.js";
+import type { RequestContext } from "./request-context.js";
+import type { MatchRoute, RouteMatcher } from "./route-matcher.js";
+/** A page route and its request-local value loader. */
+export interface PageRouteBinding<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
+	readonly route: Readonly<Route> & {
+		readonly kind: "page";
+	};
+	readonly load: (context: Readonly<RequestContext<Env>>) => Value | Promise<Value>;
+}
+/** An endpoint route and its Web-Standard request handler. */
+export interface EndpointRouteBinding<Route extends MatchRoute = MatchRoute, Env = unknown> {
+	readonly route: Readonly<Route> & {
+		readonly kind: "endpoint";
+	};
+	readonly handle: (context: Readonly<RequestContext<Env>>) => Response | Promise<Response>;
+}
+/** A role-specific application binding for one matcher route object. */
+export type RequestRouteBinding<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> = PageRouteBinding<Route, Value, Env> | EndpointRouteBinding<Route, Env>;
+/** Immutable configuration used to create a universal request handler. */
+export interface CreateRequestHandlerOptions<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
+	readonly matcher: Readonly<RouteMatcher<Route>>;
+	readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
+	readonly renderer: Readonly<Renderer<Value, Env>>;
+}
+/** Request-local adapter input supplied to the universal pipeline. */
+export interface HandleRequestInput<Env = unknown> {
+	readonly request: Request;
+	readonly pathname: string;
+	readonly env: Env;
+	readonly requestId: string;
+	readonly signal?: AbortSignal;
+	readonly waitUntil?: (promise: Promise<unknown>) => void;
+}
+/** A reusable, immutable universal request pipeline. */
+export interface RequestHandler<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
+	readonly matcher: Readonly<RouteMatcher<Route>>;
+	readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
+	readonly handle: (input: HandleRequestInput<Env>) => Promise<Response>;
+}
+/**
+ * Creates one universal endpoint-first request pipeline from immutable route bindings.
+ *
+ * Adapters must pass the raw pathname separately from `request.url`. Endpoint responses pass
+ * through unchanged. Page rendering supports buffered and backpressure-aware streaming output;
+ * renderer cleanup runs exactly once after buffered conversion or stream completion/cancellation.
+ */
+export declare function createRequestHandler<Route extends MatchRoute, Value, Env>(options: CreateRequestHandlerOptions<Route, Value, Env>): Readonly<RequestHandler<Route, Value, Env>>;
 
 ## route-matcher.d.ts
 /** Semantic route segment kinds accepted from the compiler route graph. */
