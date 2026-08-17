@@ -27,7 +27,11 @@ importers:
         specifier: workspace:*
         version: link:../core
 
-  packages/compiler: {}
+  packages/compiler:
+    dependencies:
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   packages/core: {}
 
