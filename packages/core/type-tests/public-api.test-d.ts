@@ -11,6 +11,7 @@ import {
   createRequestContext,
   createRequestHandler,
   createRouteMatcher,
+  createSecureToken,
   createSecurityHeaders,
   type CspDirectives,
   type Diagnostic,
@@ -180,6 +181,9 @@ createRequestHandler({
     }
   ]
 });
+
+const secureToken: string = createSecureToken();
+void secureToken;
 
 const csp: CspDirectives = {
   "default-src": ["'self'"],

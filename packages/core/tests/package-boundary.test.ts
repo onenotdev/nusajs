@@ -56,6 +56,7 @@ describe("core package boundary", () => {
       "request-handler.d.ts",
       "route-matcher.d.ts",
       "renderer.d.ts",
+      "secure-token.d.ts",
       "security-headers.d.ts"
     ]
       .map((file) => {

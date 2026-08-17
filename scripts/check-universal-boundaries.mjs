@@ -9,6 +9,8 @@ const sourceExtensions = new Set([".cjs", ".cts", ".js", ".jsx", ".mjs", ".mts",
 const nodeBuiltins = new Set(
   builtinModules.map((specifier) => specifier.replace(/^node:/, "").split("/")[0])
 );
+// SEC-CRYPTO-002: framework runtime code must never fall back to predictable randomness.
+const insecureRandomPattern = /\bMath\.random\s*\(/;
 
 export const universalPackages = Object.freeze([
   Object.freeze({ name: "@nusajs/core", root: "packages/core" }),
@@ -82,6 +84,16 @@ export async function scanUniversalPackages(options = {}) {
     for (const tree of ["src", "dist"]) {
       for (const file of await filesUnder(resolve(packageRoot, tree))) {
         const source = await readFile(file, "utf8");
+        if (insecureRandomPattern.test(source)) {
+          violations.push(
+            Object.freeze({
+              code: "NUSA_BOUNDARY_INSECURE_RANDOM",
+              package: packageEntry.name,
+              file: relative(root, file).replaceAll("\\", "/"),
+              specifier: "Math.random"
+            })
+          );
+        }
         for (const specifier of collectSpecifiers(source, file)) {
           if (!isNodeBuiltin(specifier)) continue;
           violations.push(
@@ -106,6 +118,9 @@ export async function scanUniversalPackages(options = {}) {
 }
 
 export function formatBoundaryViolation(violation) {
+  if (violation.code === "NUSA_BOUNDARY_INSECURE_RANDOM") {
+    return `${violation.code}: ${violation.package} uses ${violation.specifier} in ${violation.file}`;
+  }
   return `${violation.code}: ${violation.package} imports ${JSON.stringify(violation.specifier)} in ${violation.file}`;
 }
 

@@ -3,8 +3,10 @@ export interface UniversalPackageBoundary {
   readonly root: string;
 }
 
+export type BoundaryViolationCode = "NUSA_BOUNDARY_NODE_BUILTIN" | "NUSA_BOUNDARY_INSECURE_RANDOM";
+
 export interface BoundaryViolation {
-  readonly code: "NUSA_BOUNDARY_NODE_BUILTIN";
+  readonly code: BoundaryViolationCode;
   readonly package: string;
   readonly file: string;
   readonly specifier: string;

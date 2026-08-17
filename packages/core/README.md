@@ -166,3 +166,15 @@ const appHeaders = new Headers({
 const merged = mergeSecurityHeadersStrict(platformPolicy, appHeaders);
 // Conflicts (e.g. a child that widens a CSP directive) throw instead of weakening the parent.
 ```
+
+Opaque tokens and identifiers use a fixed 256-bit entropy floor from Web Crypto, encoded as
+unpadded base64url, and fail closed when Web Crypto is unavailable:
+
+```ts
+import { createSecureToken } from "@nusajs/core";
+
+const nonce = createSecureToken(); // 43-character unpadded base64url, 256 bits
+```
+
+Random tokens provide unpredictability only, never integrity or confidentiality. The universal
+package boundary scanner rejects `Math.random` in framework runtime code.

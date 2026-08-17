@@ -77,3 +77,4 @@ export {
   mergeSecurityHeaders,
   mergeSecurityHeadersStrict
 } from "./security-headers.js";
+export { createSecureToken } from "./secure-token.js";

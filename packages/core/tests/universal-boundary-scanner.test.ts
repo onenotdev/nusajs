@@ -67,6 +67,31 @@ describe("universal package boundary scanner", () => {
     ]);
   });
 
+  it("rejects Math.random in universal runtime source and output", async () => {
+    const root = await fixture({
+      "packages/universal/src/token.ts": "export const id = () => Math.random().toString(36);\n",
+      "packages/universal/dist/token.js": "export const id = () => Math.random().toString(36);\n"
+    });
+
+    const violations = await scanUniversalPackages({
+      repositoryRoot: root,
+      packages: fixturePackages
+    });
+
+    expect(violations).toEqual([
+      expect.objectContaining({
+        code: "NUSA_BOUNDARY_INSECURE_RANDOM",
+        specifier: "Math.random",
+        file: "packages/universal/dist/token.js"
+      }),
+      expect.objectContaining({
+        code: "NUSA_BOUNDARY_INSECURE_RANDOM",
+        specifier: "Math.random",
+        file: "packages/universal/src/token.ts"
+      })
+    ]);
+  });
+
   it("formats a stable value-free diagnostic", () => {
     expect(
       formatBoundaryViolation({
@@ -77,6 +102,16 @@ describe("universal package boundary scanner", () => {
       })
     ).toBe(
       'NUSA_BOUNDARY_NODE_BUILTIN: @example/universal imports "node:fs" in packages/universal/src/secret.ts'
+    );
+    expect(
+      formatBoundaryViolation({
+        code: "NUSA_BOUNDARY_INSECURE_RANDOM",
+        package: "@example/universal",
+        file: "packages/universal/src/token.ts",
+        specifier: "Math.random"
+      })
+    ).toBe(
+      "NUSA_BOUNDARY_INSECURE_RANDOM: @example/universal uses Math.random in packages/universal/src/token.ts"
     );
   });
 });
