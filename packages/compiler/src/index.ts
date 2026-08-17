@@ -24,3 +24,26 @@ export type {
   ConfigResult,
   FrameworkConfig
 } from "./config.js";
+export {
+  assertManifestSupported,
+  CAPABILITY_MANIFEST_NAME,
+  CAPABILITY_MANIFEST_VERSION,
+  createCapabilityManifest,
+  createRouteManifest,
+  createSecurityManifest,
+  ROUTE_MANIFEST_NAME,
+  ROUTE_MANIFEST_VERSION,
+  SECURITY_MANIFEST_NAME,
+  SECURITY_MANIFEST_VERSION
+} from "./manifests.js";
+export type {
+  CapabilityManifest,
+  CapabilityManifestInput,
+  ManifestRoute,
+  RouteCapability,
+  RouteManifest,
+  SecurityDiagnosticSummary,
+  SecurityManifest,
+  SecurityManifestInput,
+  VersionedManifest
+} from "./manifests.js";

@@ -16,3 +16,9 @@ recorded as dynamic values and never executed. Unknown properties, invalid value
 property names, and excessive nesting fail closed with an exact property path
 (`NUSA-CONFIG-0001`) and a secret-free description of the received value. The only legal
 `security.mode` in v0.x is `"strict"`; an absent key defaults to strict (ADR-008).
+
+`createRouteManifest()`, `createSecurityManifest()`, and `createCapabilityManifest()` produce the
+versioned build contracts of `docs/02_ARCHITECTURE.md` — deterministic route identities, a
+name-only security posture with no secret values (ADR-008 part 2), and a closed capability
+vocabulary. `assertManifestSupported()` rejects unsupported schema major versions before any
+consumer misreads a future manifest.
