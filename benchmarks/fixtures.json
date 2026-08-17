@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "fixtures": [
+    {
+      "id": "B01",
+      "slug": "hello-static",
+      "status": "planned",
+      "description": "One non-interactive production page"
+    },
+    {
+      "id": "B02",
+      "slug": "static-1000",
+      "status": "planned",
+      "description": "One thousand content pages"
+    },
+    {
+      "id": "B03",
+      "slug": "ssr-minimal",
+      "status": "planned",
+      "description": "Minimal production server rendering"
+    },
+    {
+      "id": "B04",
+      "slug": "ssr-data",
+      "status": "planned",
+      "description": "Data loader with controlled latency and abort"
+    },
+    {
+      "id": "B05",
+      "slug": "islands-10",
+      "status": "planned",
+      "description": "Ten small interactive islands"
+    },
+    {
+      "id": "B06",
+      "slug": "dashboard",
+      "status": "planned",
+      "description": "Nested layouts, policy middleware, and chart bundle"
+    },
+    {
+      "id": "B07",
+      "slug": "api-json",
+      "status": "planned",
+      "description": "Small, large, and streaming JSON responses"
+    },
+    {
+      "id": "B08",
+      "slug": "routes-10k",
+      "status": "planned",
+      "description": "Ten thousand static, dynamic, and catch-all routes"
+    },
+    {
+      "id": "B09",
+      "slug": "monorepo",
+      "status": "planned",
+      "description": "Twenty packages and shared UI"
+    },
+    {
+      "id": "B10",
+      "slug": "rebuild",
+      "status": "planned",
+      "description": "Component, loader, route-tree, and configuration edits"
+    },
+    {
+      "id": "B11",
+      "slug": "security-overhead",
+      "status": "planned",
+      "description": "Strict defaults versus documented relaxable controls"
+    },
+    {
+      "id": "harness-calibration",
+      "slug": "harness-calibration",
+      "status": "implemented",
+      "description": "Deterministic harness-overhead calibration; not a framework benchmark"
+    }
+  ]
+}

@@ -17,6 +17,8 @@
     "typecheck": "tsc --build --force tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "benchmark": "node benchmarks/harness.mjs",
+    "benchmark:list": "node benchmarks/harness.mjs --list",
     "deps:audit": "pnpm audit --audit-level high",
     "deps:licenses": "node scripts/check-licenses.mjs",
     "deps:check": "pnpm run deps:audit && pnpm run deps:licenses",

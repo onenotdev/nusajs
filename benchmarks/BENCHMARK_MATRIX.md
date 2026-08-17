@@ -16,6 +16,10 @@
 
 ## Output schema
 
+The executable, versioned result contract is implemented by `benchmarks/harness.mjs` and documented
+in `benchmarks/README.md`. The example below is abbreviated; generated results additionally retain
+methodology, prerequisite checks, minimum, maximum, mean, standard deviation, units, and claim scope.
+
 ```json
 {
   "framework": "[FRAMEWORK_NAME]",
