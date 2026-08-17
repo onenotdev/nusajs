@@ -49,3 +49,12 @@ export type {
 export { RouteScanError, scanRouteFiles } from "./route-scanner.js";
 export type { GeneratedRouteTypes } from "./route-types.js";
 export { generateRouteTypes } from "./route-types.js";
+export type {
+  NusaVitePluginOptions,
+  NusaVitePluginState
+} from "./vite-plugin.js";
+export {
+  createNusaVitePlugin,
+  ROUTE_MANIFEST_VIRTUAL_ID,
+  TYPED_ROUTES_VIRTUAL_ID
+} from "./vite-plugin.js";

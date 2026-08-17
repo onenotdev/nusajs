@@ -28,3 +28,8 @@ generated module exports `RouteId`, `RouteParams`, and a type-safe `href()` func
 route identity. Dynamic values are percent-encoded as individual path segments; catch-all values
 are non-empty arrays, optional values may be omitted, and missing, extra, or malformed runtime
 parameters fail closed with `NUSA-ROUTE-0001`.
+
+`createNusaVitePlugin()` is the private Vite bridge used by framework tooling. Its pre-build hook
+statically parses `nusa.config.ts`, securely scans `src/routes`, and serves deterministic
+`virtual:nusajs/route-manifest` and `virtual:nusajs/typed-routes` modules. It never imports route or
+configuration modules and installs no development-server middleware or network endpoint.

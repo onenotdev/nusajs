@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -13,14 +13,14 @@ const manifest = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf
 };
 
 describe("compiler package boundary", () => {
-  it("is private, ESM-only, and explicitly exported with only the established TypeScript parser dependency", () => {
+  it("is private, ESM-only, and explicitly exported with exact compiler dependencies", () => {
     expect(manifest).toMatchObject({ name: "@nusajs/compiler", private: true, type: "module" });
     expect(manifest.exports).toEqual({
       ".": { types: "./dist/index.d.ts", import: "./dist/index.js" }
     });
     // The static, non-executing config loader parses configuration through the same
     // TypeScript parser the repository toolchain already pins (ADR-005 toolchain).
-    expect(manifest.dependencies).toEqual({ typescript: "5.9.3" });
+    expect(manifest.dependencies).toEqual({ typescript: "5.9.3", vite: "7.3.6" });
   });
 
   it("keeps built output limited to relative modules and explicit Node built-ins", () => {
@@ -36,7 +36,8 @@ describe("compiler package boundary", () => {
             specifier?.startsWith("./") ||
             specifier?.startsWith("../") ||
             specifier?.startsWith("node:") ||
-            specifier === "typescript"
+            specifier === "typescript" ||
+            specifier === "vite"
         )
       );
     }
