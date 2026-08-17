@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nusajs.invalid/schemas/error-codes-v1.json",
+  "title": "NusaJS error-code allocation registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "entries"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "subsystem",
+          "summary",
+          "defaultSeverity",
+          "stability",
+          "documentationSlug",
+          "status"
+        ],
+        "properties": {
+          "code": { "type": "string", "pattern": "^NUSA-[A-Z][A-Z0-9]{1,11}-[0-9]{4}$" },
+          "subsystem": {
+            "enum": [
+              "CLI",
+              "CONFIG",
+              "ROUTE",
+              "RENDER",
+              "DATA",
+              "CACHE",
+              "SERVER",
+              "ADAPTER",
+              "PLUGIN",
+              "SECURITY",
+              "INTERNAL"
+            ]
+          },
+          "summary": { "type": "string", "minLength": 1 },
+          "defaultSeverity": { "enum": ["error", "warning", "info"] },
+          "stability": { "enum": ["experimental", "stable"] },
+          "documentationSlug": {
+            "type": "string",
+            "pattern": "^/errors/nusa-[a-z][a-z0-9]{1,11}-[0-9]{4}$"
+          },
+          "status": { "enum": ["active", "retired"] }
+        }
+      }
+    }
+  }
+}
