@@ -2,11 +2,11 @@
 /** The canonical package name for the universal NusaJS core. */
 export declare const CORE_PACKAGE_NAME: "@nusajs/core";
 /**
- * The coordinated framework version represented by this package build.
- *
- * This pre-release workspace value is replaced by the controlled release process once publishing
- * is authorized.
- */
+  * The coordinated framework version represented by this package build.
+  *
+  * This pre-release workspace value is replaced by the controlled release process once publishing
+  * is authorized.
+  */
 export declare const CORE_VERSION: "0.0.0";
 /** The literal type of the canonical universal core package name. */
 export type CorePackageName = typeof CORE_PACKAGE_NAME;
@@ -22,105 +22,107 @@ export type { CreateRequestHandlerOptions, EndpointRouteBinding, HandleRequestIn
 export { createRequestHandler } from "./request-handler.js";
 export type { MatchRoute, MatchRouteSegment, MatchRouteSegmentKind, RouteMatch, RouteMatcher } from "./route-matcher.js";
 export { createRouteMatcher } from "./route-matcher.js";
+export type { CoopValue, CorpValue, CspDirectiveName, CspDirectives, CrossOriginIsolationOptions, FrameOptionsValue, HstsOptions, ReferrerPolicyValue, SecurityHeaderConflict, SecurityHeaderMergeResult, SecurityHeaderOptions } from "./security-headers.js";
+export { createSecurityHeaders, mergeSecurityHeaders, mergeSecurityHeadersStrict } from "./security-headers.js";
 
 ## diagnostics.d.ts
 /** The severities supported by NusaJS diagnostics. */
 export type DiagnosticSeverity = "error" | "warning" | "info";
 /** A one-based location in a source file. */
 export interface SourcePosition {
-	readonly line: number;
-	readonly column: number;
+  readonly line: number;
+  readonly column: number;
 }
 /** An ordered, inclusive source range. */
 export interface SourceRange {
-	readonly start: SourcePosition;
-	readonly end: SourcePosition;
+  readonly start: SourcePosition;
+  readonly end: SourcePosition;
 }
 declare const registry: {
-	readonly "NUSA-ADAPTER-0001": readonly ["error", "/errors/nusa-adapter-0001", true];
-	readonly "NUSA-CONFIG-0001": readonly ["error", "/errors/nusa-config-0001", true];
-	readonly "NUSA-INTERNAL-0001": readonly ["error", "/errors/nusa-internal-0001", true];
-	readonly "NUSA-ROUTE-0001": readonly ["error", "/errors/nusa-route-0001", true];
-	readonly "NUSA-ROUTE-0002": readonly ["warning", "/errors/nusa-route-0002", false];
-	readonly "NUSA-SECURITY-0001": readonly ["error", "/errors/nusa-security-0001", true];
-	readonly "NUSA-SERVER-0001": readonly ["error", "/errors/nusa-server-0001", true];
+  readonly "NUSA-ADAPTER-0001": readonly ["error", "/errors/nusa-adapter-0001", true];
+  readonly "NUSA-CONFIG-0001": readonly ["error", "/errors/nusa-config-0001", true];
+  readonly "NUSA-INTERNAL-0001": readonly ["error", "/errors/nusa-internal-0001", true];
+  readonly "NUSA-ROUTE-0001": readonly ["error", "/errors/nusa-route-0001", true];
+  readonly "NUSA-ROUTE-0002": readonly ["warning", "/errors/nusa-route-0002", false];
+  readonly "NUSA-SECURITY-0001": readonly ["error", "/errors/nusa-security-0001", true];
+  readonly "NUSA-SERVER-0001": readonly ["error", "/errors/nusa-server-0001", true];
 };
 /** Every allocated core diagnostic code, including permanent retired tombstones. */
 export type DiagnosticCode = keyof typeof registry;
 /** A core diagnostic code that may be emitted by current framework code. */
 export type ActiveDiagnosticCode = {
-	[Code in DiagnosticCode]: (typeof registry)[Code][2] extends true ? Code : never;
+  [Code in DiagnosticCode]: (typeof registry)[Code][2] extends true ? Code : never;
 }[DiagnosticCode];
 /** Input used to create a validated diagnostic. */
 export interface DiagnosticInput {
-	readonly code: ActiveDiagnosticCode;
-	readonly severity?: DiagnosticSeverity;
-	readonly message: string;
-	readonly file?: string;
-	readonly range?: SourceRange;
-	readonly hint?: string;
+  readonly code: ActiveDiagnosticCode;
+  readonly severity?: DiagnosticSeverity;
+  readonly message: string;
+  readonly file?: string;
+  readonly range?: SourceRange;
+  readonly hint?: string;
 }
 /** A validated diagnostic shared by development sinks. */
 export interface Diagnostic {
-	readonly code: ActiveDiagnosticCode;
-	readonly severity: DiagnosticSeverity;
-	readonly message: string;
-	readonly file?: string;
-	readonly range?: SourceRange;
-	readonly hint?: string;
-	readonly docs: string;
+  readonly code: ActiveDiagnosticCode;
+  readonly severity: DiagnosticSeverity;
+  readonly message: string;
+  readonly file?: string;
+  readonly range?: SourceRange;
+  readonly hint?: string;
+  readonly docs: string;
 }
 /** The only fields permitted at a production error boundary. */
 export interface ProductionDiagnostic {
-	readonly code: "NUSA-SERVER-0001";
-	readonly requestId: string;
+  readonly code: "NUSA-SERVER-0001";
+  readonly requestId: string;
 }
 /**
- * Creates and freezes a validated development diagnostic.
- *
- * @param input - Static identity and development-only diagnostic details.
- * @param documentationOrigin - Credential-free HTTPS origin for error documentation.
- */
+  * Creates and freezes a validated development diagnostic.
+  *
+  * @param input - Static identity and development-only diagnostic details.
+  * @param documentationOrigin - Credential-free HTTPS origin for error documentation.
+  */
 export declare function createDiagnostic(input: DiagnosticInput, documentationOrigin: string): Readonly<Diagnostic>;
 /** Formats a diagnostic as deterministic plain development text. */
 export declare function formatDevelopmentDiagnostic(diagnostic: Diagnostic): string;
 /** Serializes a diagnostic for development-only machine consumers. */
 export declare function serializeDevelopmentDiagnostic(diagnostic: Diagnostic): string;
 /**
- * Creates a fail-closed production-safe diagnostic containing no development details.
- *
- * The initial allowlist intentionally contains only the generic server code.
- */
+  * Creates a fail-closed production-safe diagnostic containing no development details.
+  *
+  * The initial allowlist intentionally contains only the generic server code.
+  */
 export declare function formatProductionDiagnostic(_code: DiagnosticCode | (string & {}), requestId: string): Readonly<ProductionDiagnostic>;
 export {};
 
 ## request-context.d.ts
 /** Universal, isolated state for one request lifecycle. */
 export interface RequestContext<Env = unknown> {
-	readonly request: Request;
-	readonly url: URL;
-	readonly params: Readonly<Record<string, string>>;
-	readonly env: Env;
-	readonly signal: AbortSignal;
-	readonly requestId: string;
-	readonly locals: Map<symbol, unknown>;
-	readonly waitUntil?: (promise: Promise<unknown>) => void;
+  readonly request: Request;
+  readonly url: URL;
+  readonly params: Readonly<Record<string, string>>;
+  readonly env: Env;
+  readonly signal: AbortSignal;
+  readonly requestId: string;
+  readonly locals: Map<symbol, unknown>;
+  readonly waitUntil?: (promise: Promise<unknown>) => void;
 }
 /** Input used to construct one fresh request context. */
 export interface CreateRequestContextInput<Env = unknown> {
-	readonly request: Request;
-	readonly env: Env;
-	readonly requestId: string;
-	readonly params?: Readonly<Record<string, string>>;
-	readonly signal?: AbortSignal;
-	readonly waitUntil?: (promise: Promise<unknown>) => void;
+  readonly request: Request;
+  readonly env: Env;
+  readonly requestId: string;
+  readonly params?: Readonly<Record<string, string>>;
+  readonly signal?: AbortSignal;
+  readonly waitUntil?: (promise: Promise<unknown>) => void;
 }
 /**
- * Creates fresh universal state for exactly one request lifecycle.
- *
- * The environment is retained by reference because host bindings may not be cloneable. Callers
- * must supply request-local environment state where mutation is possible.
- */
+  * Creates fresh universal state for exactly one request lifecycle.
+  *
+  * The environment is retained by reference because host bindings may not be cloneable. Callers
+  * must supply request-local environment state where mutation is possible.
+  */
 export declare function createRequestContext<Env>(input: CreateRequestContextInput<Env>): Readonly<RequestContext<Env>>;
 
 ## request-handler.d.ts
@@ -129,48 +131,48 @@ import type { RequestContext } from "./request-context.js";
 import type { MatchRoute, RouteMatcher } from "./route-matcher.js";
 /** A page route and its request-local value loader. */
 export interface PageRouteBinding<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
-	readonly route: Readonly<Route> & {
-		readonly kind: "page";
-	};
-	readonly load: (context: Readonly<RequestContext<Env>>) => Value | Promise<Value>;
+  readonly route: Readonly<Route> & {
+  readonly kind: "page";
+  };
+  readonly load: (context: Readonly<RequestContext<Env>>) => Value | Promise<Value>;
 }
 /** An endpoint route and its Web-Standard request handler. */
 export interface EndpointRouteBinding<Route extends MatchRoute = MatchRoute, Env = unknown> {
-	readonly route: Readonly<Route> & {
-		readonly kind: "endpoint";
-	};
-	readonly handle: (context: Readonly<RequestContext<Env>>) => Response | Promise<Response>;
+  readonly route: Readonly<Route> & {
+  readonly kind: "endpoint";
+  };
+  readonly handle: (context: Readonly<RequestContext<Env>>) => Response | Promise<Response>;
 }
 /** A role-specific application binding for one matcher route object. */
 export type RequestRouteBinding<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> = PageRouteBinding<Route, Value, Env> | EndpointRouteBinding<Route, Env>;
 /** Immutable configuration used to create a universal request handler. */
 export interface CreateRequestHandlerOptions<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
-	readonly matcher: Readonly<RouteMatcher<Route>>;
-	readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
-	readonly renderer: Readonly<Renderer<Value, Env>>;
+  readonly matcher: Readonly<RouteMatcher<Route>>;
+  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
+  readonly renderer: Readonly<Renderer<Value, Env>>;
 }
 /** Request-local adapter input supplied to the universal pipeline. */
 export interface HandleRequestInput<Env = unknown> {
-	readonly request: Request;
-	readonly pathname: string;
-	readonly env: Env;
-	readonly requestId: string;
-	readonly signal?: AbortSignal;
-	readonly waitUntil?: (promise: Promise<unknown>) => void;
+  readonly request: Request;
+  readonly pathname: string;
+  readonly env: Env;
+  readonly requestId: string;
+  readonly signal?: AbortSignal;
+  readonly waitUntil?: (promise: Promise<unknown>) => void;
 }
 /** A reusable, immutable universal request pipeline. */
 export interface RequestHandler<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
-	readonly matcher: Readonly<RouteMatcher<Route>>;
-	readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
-	readonly handle: (input: HandleRequestInput<Env>) => Promise<Response>;
+  readonly matcher: Readonly<RouteMatcher<Route>>;
+  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
+  readonly handle: (input: HandleRequestInput<Env>) => Promise<Response>;
 }
 /**
- * Creates one universal endpoint-first request pipeline from immutable route bindings.
- *
- * Adapters must pass the raw pathname separately from `request.url`. Endpoint responses pass
- * through unchanged. Page rendering supports buffered and backpressure-aware streaming output;
- * renderer cleanup runs exactly once after buffered conversion or stream completion/cancellation.
- */
+  * Creates one universal endpoint-first request pipeline from immutable route bindings.
+  *
+  * Adapters must pass the raw pathname separately from `request.url`. Endpoint responses pass
+  * through unchanged. Page rendering supports buffered and backpressure-aware streaming output;
+  * renderer cleanup runs exactly once after buffered conversion or stream completion/cancellation.
+  */
 export declare function createRequestHandler<Route extends MatchRoute, Value, Env>(options: CreateRequestHandlerOptions<Route, Value, Env>): Readonly<RequestHandler<Route, Value, Env>>;
 
 ## route-matcher.d.ts
@@ -178,37 +180,37 @@ export declare function createRequestHandler<Route extends MatchRoute, Value, En
 export type MatchRouteSegmentKind = "static" | "dynamic" | "optional" | "catch-all" | "optional-catch-all";
 /** Structurally compatible immutable segment consumed by the universal matcher. */
 export interface MatchRouteSegment {
-	readonly kind: MatchRouteSegmentKind;
-	readonly value: string;
+  readonly kind: MatchRouteSegmentKind;
+  readonly value: string;
 }
 /** Structurally compatible page or endpoint route consumed by the universal matcher. */
 export interface MatchRoute {
-	readonly kind: "page" | "endpoint";
-	readonly pattern: string;
-	readonly segments: readonly Readonly<MatchRouteSegment>[];
-	readonly specificity: readonly number[];
-	readonly file: string;
+  readonly kind: "page" | "endpoint";
+  readonly pattern: string;
+  readonly segments: readonly Readonly<MatchRouteSegment>[];
+  readonly specificity: readonly number[];
+  readonly file: string;
 }
 /** Immutable successful route match. */
 export interface RouteMatch<Route extends MatchRoute = MatchRoute> {
-	readonly route: Readonly<Route>;
-	readonly params: Readonly<Record<string, string>>;
+  readonly route: Readonly<Route>;
+  readonly params: Readonly<Record<string, string>>;
 }
 /** A reusable universal matcher compiled from an immutable route list. */
 export interface RouteMatcher<Route extends MatchRoute = MatchRoute> {
-	readonly routes: readonly Readonly<Route>[];
-	readonly match: (pathname: string, kind: MatchRoute["kind"]) => Readonly<RouteMatch<Route>> | undefined;
+  readonly routes: readonly Readonly<Route>[];
+  readonly match: (pathname: string, kind: MatchRoute["kind"]) => Readonly<RouteMatch<Route>> | undefined;
 }
 /**
- * Creates a reusable universal matcher from compiler-produced route records.
- *
- * The matcher accepts only a raw pathname beginning with `/`. It rejects malformed escapes,
- * separators, dot segments, duplicate or non-root trailing slashes, controls, query/fragment
- * syntax, paths above 8 KiB, and paths above 256 segments. Decoded segments are normalized to NFC
- * and static comparisons remain case-sensitive.
- *
- * @param routes - Structurally compatible parsed routes with parser-derived specificity keys.
- */
+  * Creates a reusable universal matcher from compiler-produced route records.
+  *
+  * The matcher accepts only a raw pathname beginning with `/`. It rejects malformed escapes,
+  * separators, dot segments, duplicate or non-root trailing slashes, controls, query/fragment
+  * syntax, paths above 8 KiB, and paths above 256 segments. Decoded segments are normalized to NFC
+  * and static comparisons remain case-sensitive.
+  *
+  * @param routes - Structurally compatible parsed routes with parser-derived specificity keys.
+  */
 export declare function createRouteMatcher<Route extends MatchRoute>(routes: readonly Readonly<Route>[]): Readonly<RouteMatcher<Route>>;
 
 ## renderer.d.ts
@@ -217,37 +219,135 @@ import type { RequestContext } from "./request-context.js";
 export type RendererDelivery = "buffered" | "streaming";
 /** Immutable input passed to a renderer for one request. */
 export interface RenderInput<Value = unknown, Env = unknown> {
-	readonly value: Value;
-	readonly context: Readonly<RequestContext<Env>>;
-	readonly signal: AbortSignal;
+  readonly value: Value;
+  readonly context: Readonly<RequestContext<Env>>;
+  readonly signal: AbortSignal;
 }
 /** Buffered UTF-8 HTML produced before response commitment. */
 export interface BufferedRenderResult {
-	readonly delivery: "buffered";
-	readonly body: string;
-	readonly status: number;
-	readonly headers: Headers;
-	readonly close: () => void | Promise<void>;
+  readonly delivery: "buffered";
+  readonly body: string;
+  readonly status: number;
+  readonly headers: Headers;
+  readonly close: () => void | Promise<void>;
 }
 /** Streaming HTML bytes produced with Web-Standard backpressure and cancellation. */
 export interface StreamingRenderResult {
-	readonly delivery: "streaming";
-	readonly body: ReadableStream<Uint8Array>;
-	readonly status: number;
-	readonly headers: Headers;
-	readonly close: () => void | Promise<void>;
+  readonly delivery: "streaming";
+  readonly body: ReadableStream<Uint8Array>;
+  readonly status: number;
+  readonly headers: Headers;
+  readonly close: () => void | Promise<void>;
 }
 /** Renderer output whose metadata is finalized before its body is committed. */
 export type RenderResult = BufferedRenderResult | StreamingRenderResult;
 /** Public implementation contract shared by every renderer. */
 export interface Renderer<Value = unknown, Env = unknown> {
-	readonly id: string;
-	readonly deliveries: ReadonlySet<RendererDelivery>;
-	readonly render: (input: RenderInput<Value, Env>) => Promise<RenderResult>;
+  readonly id: string;
+  readonly deliveries: ReadonlySet<RendererDelivery>;
+  readonly render: (input: RenderInput<Value, Env>) => Promise<RenderResult>;
 }
 /**
- * Validates and freezes a renderer descriptor without importing a renderer implementation.
- *
- * Request-local state belongs only in `RenderInput`; descriptors must be safe to share globally.
- */
+  * Validates and freezes a renderer descriptor without importing a renderer implementation.
+  *
+  * Request-local state belongs only in `RenderInput`; descriptors must be safe to share globally.
+  */
 export declare function defineRenderer<Value, Env>(renderer: Renderer<Value, Env>): Renderer<Value, Env>;
+
+## security-headers.d.ts
+/**
+  * Security-header primitives (FW-124, SEC-HEADER-001/002/003, SEC-CACHE-004).
+  *
+  * `createSecurityHeaders()` builds an explicit, deterministic security header set. The framework
+  * imposes no policy by default; every helper is opt-in so an application's actual policy is always
+  * inspectable. `mergeSecurityHeaders()` merges a parent (platform/strict) set with a child set,
+  * keeps the stricter parent value on scalar conflict, unions Content-Security-Policy directives,
+  * and reports every conflict instead of silently weakening a policy.
+  */
+/** Values accepted for the `Referrer-Policy` header. */
+export type ReferrerPolicyValue = "no-referrer" | "no-referrer-when-downgrade" | "origin" | "origin-when-cross-origin" | "same-origin" | "strict-origin" | "strict-origin-when-cross-origin" | "unsafe-url";
+/** Values accepted for the legacy `X-Frame-Options` header. */
+export type FrameOptionsValue = "DENY" | "SAMEORIGIN";
+/** Values accepted for the `Cross-Origin-Opener-Policy` header. */
+export type CoopValue = "same-origin" | "same-origin-allow-popups";
+/** Values accepted for the `Cross-Origin-Resource-Policy` header. */
+export type CorpValue = "same-origin" | "same-site" | "cross-origin";
+/** Canonical, deterministic `Content-Security-Policy` directive order. */
+declare const cspDirectiveOrder: readonly ["default-src", "script-src", "style-src", "img-src", "connect-src", "font-src", "object-src", "base-uri", "frame-ancestors", "frame-src", "form-action", "worker-src", "manifest-src", "media-src", "child-src", "report-uri", "report-to", "upgrade-insecure-requests"];
+/** A supported `Content-Security-Policy` directive name. */
+export type CspDirectiveName = (typeof cspDirectiveOrder)[number];
+/**
+  * Content-Security-Policy directives. Values are raw CSP tokens such as `"'self'"` or
+  * `"'nonce-abc'"`; `upgrade-insecure-requests` accepts `true`.
+  */
+export type CspDirectives = Partial<Record<CspDirectiveName, readonly string[] | true>>;
+/** Options accepted by {@link createSecurityHeaders}. */
+export interface SecurityHeaderOptions {
+  /** Content-Security-Policy directives. */
+  readonly csp?: CspDirectives;
+  /** Strict-Transport-Security policy. */
+  readonly hsts?: HstsOptions;
+  /** `X-Content-Type-Options`. */
+  readonly contentTypeOptions?: "nosniff";
+  /** `Referrer-Policy` value. */
+  readonly referrerPolicy?: ReferrerPolicyValue;
+  /** Legacy `X-Frame-Options` value. */
+  readonly frameOptions?: FrameOptionsValue;
+  /** `Permissions-Policy` feature allowlists. */
+  readonly permissionsPolicy?: Readonly<Record<string, readonly string[]>>;
+  /** Cross-origin isolation headers. */
+  readonly crossOriginIsolation?: CrossOriginIsolationOptions;
+  /** `Cache-Control` value. */
+  readonly cacheControl?: string;
+}
+/** Strict-Transport-Security policy. */
+export interface HstsOptions {
+  /** `max-age` in seconds. */
+  readonly maxAge: number;
+  /** Includes `includeSubDomains`. */
+  readonly includeSubDomains?: boolean;
+  /** Includes `preload`. */
+  readonly preload?: boolean;
+}
+/** Cross-origin isolation (`Cross-Origin-Opener-Policy` and `Cross-Origin-Resource-Policy`). */
+export interface CrossOriginIsolationOptions {
+  readonly coop: CoopValue;
+  readonly corp: CorpValue;
+}
+/** A deterministic security-header merge conflict. */
+export interface SecurityHeaderConflict {
+  readonly name: string;
+  readonly parentValue: string;
+  readonly childValue: string;
+  readonly reason: "scalar" | "csp-directive";
+}
+/** The deterministic result of merging a child header set into a parent set. */
+export interface SecurityHeaderMergeResult {
+  readonly headers: Headers;
+  readonly conflicts: readonly Readonly<SecurityHeaderConflict>[];
+}
+/**
+  * Creates a security header set from explicit options with deterministic value serialization.
+  *
+  * Every value is validated against line-break injection and unknown directive names, so a typo
+  * cannot silently weaken a policy. CSP directives and permissions-policy features serialize in a
+  * fixed canonical order; the final header iteration order follows the host platform's `Headers`
+  * implementation.
+  */
+export declare function createSecurityHeaders(options: SecurityHeaderOptions): Headers;
+/**
+  * Merges a child header set into a parent set without silently weakening a stricter policy.
+  *
+  * Identical values are kept once; scalar conflicts keep the parent value and are reported; CSP
+  * headers are merged at directive level, unioning compatible values and reporting incompatible
+  * ones. New child headers are appended in child order. The result is deterministic.
+  */
+export declare function mergeSecurityHeaders(parent: Headers, child: Headers): SecurityHeaderMergeResult;
+/**
+  * Merges a child header set into a parent set and throws on any conflict.
+  *
+  * Use when a weakening or divergent child policy must fail the response rather than be resolved
+  * heuristically.
+  */
+export declare function mergeSecurityHeadersStrict(parent: Headers, child: Headers): Headers;
+export {};

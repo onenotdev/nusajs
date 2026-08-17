@@ -11,10 +11,14 @@ import {
   createRequestContext,
   createRequestHandler,
   createRouteMatcher,
+  createSecurityHeaders,
+  type CspDirectives,
   type Diagnostic,
   type DiagnosticCode,
   type DiagnosticSeverity,
   defineRenderer,
+  mergeSecurityHeaders,
+  mergeSecurityHeadersStrict,
   formatDevelopmentDiagnostic,
   formatProductionDiagnostic,
   type HandleRequestInput,
@@ -27,6 +31,9 @@ import {
   type RequestHandler,
   type RouteMatch,
   type RouteMatcher,
+  type SecurityHeaderConflict,
+  type SecurityHeaderMergeResult,
+  type SecurityHeaderOptions,
   type SourcePosition,
   type SourceRange,
   type StreamingRenderResult,
@@ -173,3 +180,28 @@ createRequestHandler({
     }
   ]
 });
+
+const csp: CspDirectives = {
+  "default-src": ["'self'"],
+  "upgrade-insecure-requests": true
+};
+const securityOptions: SecurityHeaderOptions = {
+  csp,
+  hsts: { maxAge: 31_536_000, includeSubDomains: true },
+  referrerPolicy: "no-referrer",
+  permissionsPolicy: { geolocation: [] }
+};
+const securityHeaders: Headers = createSecurityHeaders(securityOptions);
+const mergeResult: SecurityHeaderMergeResult = mergeSecurityHeaders(securityHeaders, new Headers());
+mergeResult.conflicts satisfies readonly Readonly<SecurityHeaderConflict>[];
+const strictHeaders: Headers = mergeSecurityHeadersStrict(securityHeaders, new Headers());
+void strictHeaders;
+
+// @ts-expect-error unknown CSP directives fail closed
+createSecurityHeaders({ csp: { "not-a-directive": ["x"] } });
+
+// @ts-expect-error referrer policy is a closed set
+createSecurityHeaders({ referrerPolicy: "everything" });
+
+// @ts-expect-error hsts maxAge must be a number
+createSecurityHeaders({ hsts: { maxAge: "year" } });

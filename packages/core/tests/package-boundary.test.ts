@@ -55,7 +55,8 @@ describe("core package boundary", () => {
       "request-context.d.ts",
       "request-handler.d.ts",
       "route-matcher.d.ts",
-      "renderer.d.ts"
+      "renderer.d.ts",
+      "security-headers.d.ts"
     ]
       .map((file) => {
         const declaration = readFileSync(join(packageRoot, "dist", file), "utf8")

@@ -59,3 +59,21 @@ export type {
   RouteMatcher
 } from "./route-matcher.js";
 export { createRouteMatcher } from "./route-matcher.js";
+export type {
+  CoopValue,
+  CorpValue,
+  CspDirectiveName,
+  CspDirectives,
+  CrossOriginIsolationOptions,
+  FrameOptionsValue,
+  HstsOptions,
+  ReferrerPolicyValue,
+  SecurityHeaderConflict,
+  SecurityHeaderMergeResult,
+  SecurityHeaderOptions
+} from "./security-headers.js";
+export {
+  createSecurityHeaders,
+  mergeSecurityHeaders,
+  mergeSecurityHeadersStrict
+} from "./security-headers.js";

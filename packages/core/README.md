@@ -140,3 +140,29 @@ Pages support `GET` and `HEAD`; endpoint roles are selected first for every meth
 malformed paths return a plain-text 404. Handler and renderer exceptions propagate to the adapter,
 which owns production-safe redaction. Streaming pages preserve backpressure and release renderer
 resources on completion, cancellation, source failure, or request abort.
+
+Security headers are explicit, deterministic, and merge-safe. Build an opt-in policy and merge a
+child response into a stricter parent without silently weakening it:
+
+```ts
+import {
+  createSecurityHeaders,
+  mergeSecurityHeaders,
+  mergeSecurityHeadersStrict
+} from "@nusajs/core";
+
+const platformPolicy = createSecurityHeaders({
+  csp: { "default-src": ["'self'"], "frame-ancestors": ["'none'"] },
+  hsts: { maxAge: 31_536_000, includeSubDomains: true },
+  frameOptions: "DENY",
+  contentTypeOptions: "nosniff"
+});
+
+const appHeaders = new Headers({
+  "cache-control": "no-store",
+  "content-security-policy": "script-src 'self'"
+});
+
+const merged = mergeSecurityHeadersStrict(platformPolicy, appHeaders);
+// Conflicts (e.g. a child that widens a CSP directive) throw instead of weakening the parent.
+```
