@@ -291,7 +291,12 @@ M1 exit: all M1 P0 tasks are DONE; B01/B03 smoke passes; security evidence exist
 
 ## M2 — Application fundamentals
 
-- [ ] **FW-201 [PROPOSED/P0] Nested layouts** — depends FW-116
+- [ ] **FW-201 [BLOCKED/P0] Nested layouts** — depends FW-116 (DONE); blocked 2026-08-18, agent: GitHub Copilot (`gpt-pro`)
+  - Intended outcome: compiler-computed immutable root-to-child layout chains rendered around pages through a renderer-neutral core boundary, with real Preact/kernel evidence.
+  - Derived acceptance criteria: deterministic root/nested/sibling/dynamic/group chains; ambiguous layouts fail with stable diagnostics; manifest records the complete chain under an accepted version; observable `root(child(page))` exactly once; endpoints excluded; core imports no Preact; escaping, abort, and concurrent request isolation preserved; kernel GET/HEAD/404/dynamic evidence; TSDoc/type/runtime/example/migration evidence and full gates.
+  - Blockers: accepted documents authorize `_layout` and parent-to-child order but do not define the layout component/children API, structural semantics when URL-transparent groups produce equivalent scopes, route-manifest schema/version change, generated runtime binding, or renderer composition ownership. Implementing these would invent public API and mutate accepted manifest v1.
+  - Proposed ADR: ADR-034 recommends compiler-owned structural chains, ambiguous-layout rejection, route-manifest v2, a minimal children-only renderer-specific default layout component, no layout loader/context/status/header/metadata/Response behavior in FW-201, renderer-owned composition, and immutable generated runtime bindings.
+  - Maintainer decision required: accept, amend, or reject ADR-034. No nested-layout runtime or manifest compatibility claim is made.
 - [ ] **FW-202 [PROPOSED/P0] Error and not-found boundaries** — depends FW-201
 - [ ] **FW-203 [PROPOSED/P0] Loaders and typed data** — depends FW-201
 - [ ] **FW-204 [PROPOSED/P0] Actions and progressive forms** — depends FW-203
