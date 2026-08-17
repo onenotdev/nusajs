@@ -25,6 +25,18 @@ importers:
 
   packages/core: {}
 
+  packages/renderer-preact:
+    dependencies:
+      '@nusajs/core':
+        specifier: workspace:*
+        version: link:../core
+      preact:
+        specifier: 10.29.8
+        version: 10.29.8(preact-render-to-string@6.7.0)
+      preact-render-to-string:
+        specifier: 6.7.0
+        version: 6.7.0(preact@10.29.8)
+
   spikes/renderer-evaluation:
     devDependencies:
       esbuild:

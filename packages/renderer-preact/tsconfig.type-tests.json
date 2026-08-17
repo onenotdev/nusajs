@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "isolatedDeclarations": false,
+    "baseUrl": ".",
+    "paths": {
+      "@nusajs/core": ["../core/src/index.ts"],
+      "@nusajs/renderer-preact": ["./src/index.ts"]
+    }
+  },
+  "include": ["type-tests/**/*.ts"]
+}
