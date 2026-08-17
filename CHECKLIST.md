@@ -122,7 +122,12 @@ An agent may select only one `READY` task whose dependencies are all `DONE`. Com
 
 ## M1 — Kernel
 
-- [ ] **FW-101 [PROPOSED/P0] Core package and public API boundary** — depends FW-002, FW-005
+- [ ] **FW-101 [BLOCKED/P0] Core package and public API boundary** — depends FW-002 (DONE), FW-005 (DONE); promoted to `READY` 2026-08-17 under delegated autonomy, started and blocked 2026-08-17, agent: GitHub Copilot (`gpt-pro`)
+  - Blocker: this task creates the first framework package and candidate public entry points. `AGENTS.md` requires an accepted ADR before a new public API or architecture change. ADR-018 (`docs/adr/ADR-018-core-package-and-public-entry-points.md`) is drafted as `Proposed`; only core maintainers may accept the package topology, direct-core-import policy, explicit export map, experimental entry point, and absence of an initial facade.
+  - Proposed outcome: create private ESM-only `@nusajs/core`, expose only explicit stable and experimental entry points, forbid wildcard and public `internal/*` exports, keep core free of Node.js and workspace runtime dependencies, and defer diagnostics, configuration, routing, request context, renderer, and cryptographic contracts to their owning tasks.
+  - Acceptance needed: core maintainers must approve direct imports from `@nusajs/core`, decide whether `@nusajs/core/experimental` should exist while empty, confirm that no `nusajs` facade is created in M1, and require the eight implementation-evidence items in ADR-018 before changing its status to `Accepted`.
+  - Security impact: medium. Package exports cross application, plugin, package, and supply-chain boundaries. The proposal denies deep imports, Node.js built-ins, runtime dependencies, mutable request globals, environment/filesystem exposure, custom cryptography, and publication under the provisional unreserved scope. It implements no control and discharges no `SEC-*` requirement.
+  - Verification: implementation, package creation, API report, consumer and negative import fixtures, type/runtime tests, built-output scan, documentation example, and public API reporting are deliberately not started. Existing repository verification remained green before task selection; the proposal itself must now pass formatting and repository document checks.
 - [ ] **FW-102 [PROPOSED/P0] Diagnostic model and formatters** — depends FW-006, FW-101
 - [ ] **FW-103 [PROPOSED/P0] Config loader and schema validation** — depends FW-101, FW-102
 - [ ] **FW-104 [PROPOSED/P0] Filesystem route scanner** — depends FW-004, FW-101
