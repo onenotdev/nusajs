@@ -22,12 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # Every Node major marked supported in docs/SUPPORT_POLICY.md section 3.1.
-        # Commitment C2 of docs/adr/ADR-006-supported-runtime-and-typescript-policy.md
-        # makes this list a function of that table, and
-        # tests/support-policy.test.ts fails if the two disagree. The floor is
-        # pinned to its exact minimum so the declared engines.node range is
-        # actually exercised rather than merely asserted.
+        # Test the declared minimum and current primary Node release.
         node: ["22.12.0", "24"]
     steps:
       - name: Checkout
@@ -59,20 +54,14 @@ jobs:
       - name: Test
         run: pnpm run test
 
-      # Pull-request gate 8 of docs/11_TESTING_AND_QUALITY.md. The audit blocks on
-      # a high or critical advisory as defined in docs/SUPPLY_CHAIN_POLICY.md
-      # section 6.2; the license gate enforces section 5. Both run on every
-      # platform so a platform-specific optional dependency cannot slip through.
+      # Run on every platform so platform-specific optional dependencies are scanned.
       - name: Dependency vulnerability scan
         run: pnpm run deps:audit
 
       - name: Dependency license scan
         run: pnpm run deps:licenses
 
-  # Commitment C7 of docs/adr/ADR-006-supported-runtime-and-typescript-policy.md:
-  # pre-release TypeScript is tested for advance warning only. This job is
-  # deliberately not a required check and continue-on-error keeps a compiler
-  # regression upstream from blocking a merge here.
+  # Pre-release TypeScript is informational and does not block merges.
   typescript-canary:
     name: TypeScript canary (informational)
     runs-on: ubuntu-latest

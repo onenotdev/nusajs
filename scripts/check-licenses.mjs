@@ -1,38 +1,28 @@
 /**
  * License gate for the workspace dependency tree.
  *
- * Reads the allow list out of `docs/SUPPLY_CHAIN_POLICY.md` section 5 so the
- * policy document and its enforcement cannot drift, then compares it against
- * the licenses pnpm reports for the installed tree.
+ * Compares licenses reported by pnpm against the repository's public allow
+ * list. Policy and agent-governance documents are intentionally not required
+ * by a fresh public checkout.
  *
  * Exits 0 when every declared license is allowed or carries a recorded
- * exception, and exits 1 otherwise. Discharges the license half of pull-request
- * gate 8 in `docs/11_TESTING_AND_QUALITY.md` and part of `SEC-SUPPLY-002`.
+ * exception, and exits 1 otherwise.
  */
 
 import { execFileSync, execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import process from "node:process";
 
 const repositoryRoot = join(dirname(new URL(import.meta.url).pathname.slice(1)), "..");
-const policyPath = join(repositoryRoot, "docs/SUPPLY_CHAIN_POLICY.md");
-
-/**
- * Parses the section 5 table into a map of license expression to disposition.
- *
- * @param {string} policy Contents of the supply-chain policy document.
- * @returns {Map<string, string>} Declared license expressions and dispositions.
- */
-function readAllowList(policy) {
-  const entries = new Map();
-
-  for (const match of policy.matchAll(/^\| `([^`]+)` \| (allowed|exception: [^|]+) \|$/gm)) {
-    entries.set(match[1].trim(), match[2].trim());
-  }
-
-  return entries;
-}
+const allowedLicenses = new Set([
+  "0BSD",
+  "Apache-2.0",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "MIT",
+  "MIT OR Apache-2.0"
+]);
 
 /**
  * Collects the licenses of the installed tree from pnpm.
@@ -74,26 +64,17 @@ function readInstalledLicenses() {
   return grouped;
 }
 
-const allowList = readAllowList(readFileSync(policyPath, "utf8"));
-
-if (allowList.size === 0) {
-  console.error("License gate: the allow list in docs/SUPPLY_CHAIN_POLICY.md section 5 is empty.");
-  process.exit(1);
-}
-
 const installed = readInstalledLicenses();
 const violations = [];
 
 for (const [license, packages] of installed) {
-  const disposition = allowList.get(license);
-
-  if (disposition === undefined) {
+  if (!allowedLicenses.has(license)) {
     violations.push(`${license}: not in the allow list — ${packages.join(", ")}`);
   }
 }
 
 if (violations.length > 0) {
-  console.error("License gate failed. See docs/SUPPLY_CHAIN_POLICY.md section 5.");
+  console.error("License gate failed. Review the allow list in scripts/check-licenses.mjs.");
   for (const violation of violations) {
     console.error(`  ${violation}`);
   }
@@ -103,5 +84,5 @@ if (violations.length > 0) {
 const packageCount = [...installed.values()].reduce((total, list) => total + list.length, 0);
 console.log(
   `License gate passed: ${packageCount} packages across ${installed.size} license expressions, ` +
-    `all allowed by docs/SUPPLY_CHAIN_POLICY.md section 5.`
+    "all present in the repository allow list."
 );

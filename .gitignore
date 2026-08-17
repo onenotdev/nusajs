@@ -13,3 +13,12 @@ benchmarks/test-results/
 # External tooling checkout. It contains a second copy of this repository,
 # including a nested biome.json, so it is excluded from git and from Biome.
 .freebuff/
+
+# Private development and agent context. These files remain available in the
+# maintainer workspace but are intentionally excluded from the public repository.
+AGENTS.md
+CHECKLIST.md
+.github/copilot-instructions.md
+docs/
+templates/
+tests/

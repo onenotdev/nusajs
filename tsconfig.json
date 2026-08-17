@@ -11,5 +11,5 @@
     "lib": ["ES2023"],
     "outDir": ".tsbuild"
   },
-  "include": ["tests/**/*.ts", "vitest.config.ts"]
+  "include": ["vitest.config.ts", "packages/**/*.ts"]
 }
