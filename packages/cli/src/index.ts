@@ -1,4 +1,4 @@
-import { stat } from "node:fs/promises";
+import { lstat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createNusaVitePlugin } from "@nusajs/compiler";
 import {
@@ -127,7 +127,8 @@ function parseOptions(args: readonly string[], cwd: string): Command | undefined
 
 async function isDirectory(path: string): Promise<boolean> {
   try {
-    return (await stat(path)).isDirectory();
+    const metadata = await lstat(path);
+    return metadata.isDirectory() && !metadata.isSymbolicLink();
   } catch {
     return false;
   }

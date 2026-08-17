@@ -132,9 +132,35 @@ describe("filesystem route scanner", () => {
     });
   });
 
-  it("does not duplicate records through an in-root directory symlink", async () => {
+  it("rejects in-root directory links instead of assigning route identity through aliases", async () => {
     const root = await fixture(["real/about.page.ts"]);
     await symlink(join(root, "real"), join(root, "alias"), "junction");
-    await expect(scanRouteFiles({ root })).resolves.toHaveLength(1);
+    await expect(scanRouteFiles({ root })).rejects.toMatchObject({
+      diagnostics: [{ code: "NUSA-SECURITY-0001", file: "alias" }]
+    });
+  });
+
+  it("rejects a route root that is itself a directory link", async () => {
+    const target = await fixture(["index.page.ts"]);
+    const container = await fixture([]);
+    const linkedRoot = join(container, "routes");
+    await symlink(target, linkedRoot, "junction");
+    await expect(scanRouteFiles({ root: linkedRoot })).rejects.toMatchObject({
+      diagnostics: [{ code: "NUSA-SECURITY-0001" }]
+    });
+  });
+
+  it("rejects route file links when the host permits creating them", async () => {
+    const root = await fixture(["real.page.ts"]);
+    try {
+      await symlink(join(root, "real.page.ts"), join(root, "alias.page.ts"), "file");
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code === "EPERM" || code === "EACCES") return;
+      throw error;
+    }
+    await expect(scanRouteFiles({ root })).rejects.toMatchObject({
+      diagnostics: [{ code: "NUSA-SECURITY-0001", file: "alias.page.ts" }]
+    });
   });
 });

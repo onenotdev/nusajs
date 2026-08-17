@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { build } from "vite";
@@ -103,5 +103,36 @@ describe("createNusaVitePlugin", () => {
         plugins: [createNusaVitePlugin({ root, configFile: "../secret.ts" })]
       })
     ).rejects.toThrow("configFile must remain inside");
+  });
+
+  it("rejects linked application, config, and route roots without exposing host paths", async () => {
+    const root = await fixture();
+    const container = await fixture();
+    const rootAlias = join(container, "app-link");
+    await symlink(root, rootAlias, "junction");
+    await expect(compile(rootAlias)).rejects.toThrow("root must be a regular directory");
+
+    const outside = await fixture();
+    await rm(join(root, "src/routes"), { force: true, recursive: true });
+    await symlink(join(outside, "src/routes"), join(root, "src/routes"), "junction");
+    await expect(compile(root)).rejects.toThrow("routesDirectory must be a regular directory");
+
+    await rm(join(root, "nusa.config.ts"), { force: true });
+    try {
+      await symlink(join(outside, "nusa.config.ts"), join(root, "nusa.config.ts"), "file");
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code === "EPERM" || code === "EACCES") return;
+      throw error;
+    }
+    let message = "";
+    try {
+      await compile(root);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toContain("configFile must be a regular file");
+    expect(message).not.toContain(root);
+    expect(message).not.toContain(outside);
   });
 });

@@ -1,4 +1,5 @@
-import { lstat, readdir, realpath, stat } from "node:fs/promises";
+import type { Dirent, Stats } from "node:fs";
+import { lstat, readdir, realpath } from "node:fs/promises";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 
 /** A recognized filesystem route-module role. */
@@ -91,8 +92,10 @@ export async function scanRouteFiles(
   const lexicalRoot = resolve(options.root);
   let root: string;
   try {
+    const rootMetadata = await lstat(lexicalRoot);
+    if (rootMetadata.isSymbolicLink() || !rootMetadata.isDirectory())
+      throw new Error("unsafe root");
     root = await realpath(lexicalRoot);
-    if (!(await stat(root)).isDirectory()) throw new Error("not a directory");
   } catch {
     throw new RouteScanError([
       diagnostic(
@@ -108,39 +111,54 @@ export async function scanRouteFiles(
   const visitedDirectories = new Set<string>();
 
   async function visit(directory: string): Promise<void> {
-    const canonicalDirectory = await realpath(directory);
-    if (!isContained(root, canonicalDirectory)) {
+    const sourceDirectory = portablePath(relative(root, directory));
+    let entries: Dirent[];
+    try {
+      const canonicalDirectory = await realpath(directory);
+      if (!isContained(root, canonicalDirectory)) throw new Error("escaped root");
+      if (visitedDirectories.has(canonicalDirectory)) return;
+      visitedDirectories.add(canonicalDirectory);
+      entries = await readdir(directory, { withFileTypes: true });
+    } catch {
       diagnostics.push(
         diagnostic(
           "NUSA-SECURITY-0001",
-          "Route entry resolves outside the route root",
-          "Remove the escaping symlink",
-          portablePath(relative(root, directory))
+          "Route directory cannot be inspected safely",
+          "Remove links and verify route-directory permissions",
+          sourceDirectory || "."
         )
       );
       return;
     }
-    if (visitedDirectories.has(canonicalDirectory)) return;
-    visitedDirectories.add(canonicalDirectory);
-
-    const entries = await readdir(directory, { withFileTypes: true });
     entries.sort((left, right) => left.name.localeCompare(right.name, "en"));
     for (const entry of entries) {
       const candidate = resolve(directory, entry.name);
-      const canonical = await realpath(candidate);
       const sourcePath = portablePath(relative(root, candidate));
-      if (!isContained(root, canonical)) {
+      let metadata: Stats;
+      try {
+        metadata = await lstat(candidate);
+      } catch {
         diagnostics.push(
           diagnostic(
             "NUSA-SECURITY-0001",
-            "Route entry resolves outside the route root",
-            "Remove the escaping symlink",
+            "Route entry cannot be inspected safely",
+            "Remove broken entries and verify route-tree permissions",
             sourcePath
           )
         );
         continue;
       }
-      const metadata = entry.isSymbolicLink() ? await stat(candidate) : await lstat(candidate);
+      if (entry.isSymbolicLink() || metadata.isSymbolicLink()) {
+        diagnostics.push(
+          diagnostic(
+            "NUSA-SECURITY-0001",
+            "Route tree must not contain symbolic links",
+            "Replace the link with a regular file or directory",
+            sourcePath
+          )
+        );
+        continue;
+      }
       if (metadata.isDirectory()) {
         await visit(candidate);
         continue;

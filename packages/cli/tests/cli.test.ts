@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { InlineConfig, PreviewServer, ViteDevServer } from "vite";
@@ -79,6 +79,22 @@ describe("runCli", () => {
     });
     expect(records).toEqual([]);
     expect(logs.errors[0]).toContain("NUSA-CLI-0001");
+  });
+
+  it("rejects a linked project root before invoking Vite and redacts its path", async () => {
+    const target = await fixture();
+    const container = await fixture();
+    const linkedRoot = join(container, "project-link");
+    await symlink(target, linkedRoot, "junction");
+    const logs = output(container);
+    const records: InlineConfig[] = [];
+    expect(await runCli(["build", "--root", linkedRoot], logs.context, runtime(records))).toEqual({
+      exitCode: 1
+    });
+    expect(records).toEqual([]);
+    expect(logs.errors[0]).toContain("NUSA-CLI-0001");
+    expect(logs.errors[0]).not.toContain(linkedRoot);
+    expect(logs.errors[0]).not.toContain(target);
   });
 
   it("builds with the Nusa plugin and source maps disabled unless explicitly enabled", async () => {

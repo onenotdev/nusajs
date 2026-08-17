@@ -1,5 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { isAbsolute, relative, resolve } from "node:path";
+import { lstat, readFile, realpath } from "node:fs/promises";
+import { isAbsolute, relative, resolve, sep } from "node:path";
 import ts from "typescript";
 import type { Plugin } from "vite";
 import { type ConfigDiagnostic, type FrameworkConfig, parseConfig } from "./config.js";
@@ -38,7 +38,7 @@ function pluginFailure(message: string): never {
 
 function contained(root: string, candidate: string): boolean {
   const path = relative(root, candidate);
-  return path === "" || (!path.startsWith("..") && !isAbsolute(path));
+  return path === "" || (!path.startsWith(`..${sep}`) && path !== ".." && !isAbsolute(path));
 }
 
 function safePath(root: string, input: string, label: string): string {
@@ -55,6 +55,26 @@ function diagnosticsMessage(diagnostics: readonly Readonly<ConfigDiagnostic>[]):
         `${item.code} ${item.path}: expected ${item.expected}, received ${item.received}; ${item.remediation}`
     )
     .join("\n");
+}
+
+async function safeExistingPath(
+  root: string,
+  candidate: string,
+  label: string,
+  expected: "directory" | "file"
+): Promise<string> {
+  try {
+    const metadata = await lstat(candidate);
+    if (metadata.isSymbolicLink()) throw new Error("link");
+    if (expected === "directory" ? !metadata.isDirectory() : !metadata.isFile())
+      throw new Error("wrong kind");
+    const canonicalRoot = await realpath(root);
+    const canonicalCandidate = await realpath(candidate);
+    if (!contained(canonicalRoot, canonicalCandidate)) throw new Error("escape");
+    return canonicalCandidate;
+  } catch {
+    pluginFailure(`${label} must be a regular ${expected} inside the application root`);
+  }
 }
 
 function manifestModule(manifest: Readonly<RouteManifest>): string {
@@ -88,6 +108,7 @@ export function createNusaVitePlugin(options: Readonly<NusaVitePluginOptions> = 
 
   async function rebuild(addWatchFile: (file: string) => void): Promise<void> {
     if (root === undefined) pluginFailure("Vite root has not been resolved");
+    root = await safeExistingPath(root, root, "root", "directory");
     const routesRoot = safePath(root, options.routesDirectory ?? "src/routes", "routesDirectory");
     const configPath =
       options.configFile === false
@@ -99,20 +120,20 @@ export function createNusaVitePlugin(options: Readonly<NusaVitePluginOptions> = 
       dynamicValues: Object.freeze([])
     });
     if (configPath !== undefined) {
-      addWatchFile(configPath);
+      const safeConfigPath = await safeExistingPath(root, configPath, "configFile", "file");
+      addWatchFile(safeConfigPath);
       let source: string;
       try {
-        source = await readFile(configPath, "utf8");
-      } catch (cause) {
-        throw new TypeError(`[NUSA-CONFIG-0001] Cannot read framework config: ${configPath}`, {
-          cause
-        });
+        source = await readFile(safeConfigPath, "utf8");
+      } catch {
+        pluginFailure("configFile could not be read safely");
       }
-      const parsed = parseConfig(source, configPath);
+      const parsed = parseConfig(source, "<config>");
       if (!parsed.valid) pluginFailure(diagnosticsMessage(parsed.diagnostics));
       config = parsed.config;
     }
-    const files = await scanRouteFiles({ root: routesRoot });
+    const safeRoutesRoot = await safeExistingPath(root, routesRoot, "routesDirectory", "directory");
+    const files = await scanRouteFiles({ root: safeRoutesRoot });
     for (const file of files) addWatchFile(resolve(routesRoot, file.relativePath));
     const routeManifest = createRouteManifest(parseRouteGraph(files));
     manifestCode = manifestModule(routeManifest);
