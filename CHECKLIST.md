@@ -300,7 +300,12 @@ M1 exit: all M1 P0 tasks are DONE; B01/B03 smoke passes; security evidence exist
 - [ ] **FW-202 [PROPOSED/P0] Error and not-found boundaries** — depends FW-201
 - [ ] **FW-203 [PROPOSED/P0] Loaders and typed data** — depends FW-201
 - [ ] **FW-204 [PROPOSED/P0] Actions and progressive forms** — depends FW-203
-- [ ] **FW-205 [PROPOSED/P0] API endpoints and methods** — depends FW-110
+- [ ] **FW-205 [BLOCKED/P0] API endpoints and methods** — depends FW-110 (DONE); blocked 2026-08-18, agent: GitHub Copilot (`gpt-pro`)
+  - Intended outcome: statically discovered Web-Standard endpoint methods with deterministic dispatch, HEAD/405 behavior, explicit OPTIONS/CORS, runtime-validation guidance, cancellation, and request isolation.
+  - Derived acceptance criteria: supported methods dispatch exactly; explicit HEAD overrides GET-derived HEAD; matched unsupported methods return 405 with deterministic `Allow`; endpoint-first role selection remains; OPTIONS/CORS are never implicit; static analysis executes no route module; hostile content-type/cross-origin, abort, invalid response, and concurrent-request fixtures pass; public API evidence, migration guidance, and full gates pass.
+  - Blockers: Accepted ADR-026 explicitly defers endpoint method metadata and automatic 405 to FW-205. No accepted contract defines route-module method exports, runtime binding representation, HEAD override/fallback, OPTIONS/CORS ownership, `Allow` ordering, validation hooks, or migration from `EndpointRouteBinding.handle`.
+  - Proposed ADR: ADR-035 recommends closed uppercase named method exports, immutable generated method tables outside route-manifest v1, explicit HEAD overriding GET fallback, deterministic `Allow`, no synthesized OPTIONS/CORS, and no bundled validation dependency.
+  - Maintainer decision required: accept, amend, or reject ADR-035. No endpoint-method compatibility or security claim is made.
 - [ ] **FW-206 [PROPOSED/P0] Middleware lifecycle and authorization hooks** — depends FW-110
 - [ ] **FW-207 [PROPOSED/P0] Safe redirects and rewrites** — depends FW-206
 - [ ] **FW-208 [BLOCKED/P0] Metadata/head contract** — depends FW-112
