@@ -49,6 +49,25 @@ async function compile(root: string): Promise<string> {
   return readFile(join(root, "dist", output), "utf8");
 }
 
+async function compileWithCanary(root: string, canary: string, sourcemap: boolean): Promise<void> {
+  await build({
+    root,
+    logLevel: "silent",
+    plugins: [
+      createNusaVitePlugin({
+        root,
+        canarySecretScan: { canaries: [new TextEncoder().encode(canary)] }
+      })
+    ],
+    build: {
+      emptyOutDir: true,
+      sourcemap,
+      lib: { entry: join(root, "entry.ts"), formats: ["es"], fileName: "app" },
+      minify: true
+    }
+  });
+}
+
 describe("createNusaVitePlugin", () => {
   it("builds deterministic manifest and typed-route virtual modules without executing routes", async () => {
     const root = await fixture();
@@ -84,6 +103,43 @@ describe("createNusaVitePlugin", () => {
     expect(message).toContain("NUSA-CONFIG-0001");
     expect(message).toContain("<config>.output");
     expect(message).not.toContain(secret);
+  });
+
+  it("scans final production artifacts before a Vite build resolves", async () => {
+    const root = await fixture();
+    const canary = "NUSA_CANARY_final_bundle_9031";
+    await writeFile(join(root, "entry.ts"), `export const leaked = ${JSON.stringify(canary)};`);
+    let message = "";
+    try {
+      await compileWithCanary(root, canary, false);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toContain("NUSA-SECURITY-0002");
+    expect(message).toContain("JavaScript artifact");
+    expect(message).not.toContain(canary);
+    expect(message).not.toContain(root);
+  });
+
+  it("detects a canary retained only in final source-map bytes", async () => {
+    const root = await fixture();
+    const canary = "NUSA_CANARY_source_map_only_4792";
+    await writeFile(join(root, "entry.ts"), `// ${canary}\nexport const retainedValue = "safe";`);
+    let message = "";
+    try {
+      await compileWithCanary(root, canary, true);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toContain("NUSA-SECURITY-0002");
+    expect(message).toContain("source map artifact");
+    expect(message).not.toContain(canary);
+    expect(message).not.toContain(root);
+  });
+
+  it("allows clean final artifacts when scanning is enabled", async () => {
+    const root = await fixture();
+    await expect(compileWithCanary(root, "NUSA_CANARY_absent_1289", true)).resolves.toBeUndefined();
   });
 
   it("rejects relative roots and route/config paths escaping the application root", async () => {

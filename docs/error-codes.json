@@ -1,0 +1,105 @@
+{
+  "$schema": "./error-codes.schema.json",
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "code": "NUSA-ADAPTER-0001",
+      "subsystem": "ADAPTER",
+      "summary": "Active adapter lacks a required framework capability",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-adapter-0001",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-CLI-0001",
+      "subsystem": "CLI",
+      "summary": "CLI arguments or project root are invalid",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-cli-0001",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-CLI-0002",
+      "subsystem": "CLI",
+      "summary": "Local server is explicitly exposed beyond loopback",
+      "defaultSeverity": "warning",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-cli-0002",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-CLI-0003",
+      "subsystem": "CLI",
+      "summary": "CLI command failed with internal details redacted",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-cli-0003",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-CONFIG-0001",
+      "subsystem": "CONFIG",
+      "summary": "Configuration value fails schema validation",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-config-0001",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-INTERNAL-0001",
+      "subsystem": "INTERNAL",
+      "summary": "Framework invariant is violated",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-internal-0001",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-ROUTE-0001",
+      "subsystem": "ROUTE",
+      "summary": "Multiple route files resolve to one route pattern",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-route-0001",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-ROUTE-0002",
+      "subsystem": "ROUTE",
+      "summary": "Retired route taxonomy allocation exercise",
+      "defaultSeverity": "warning",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-route-0002",
+      "status": "retired"
+    },
+    {
+      "code": "NUSA-SECURITY-0001",
+      "subsystem": "SECURITY",
+      "summary": "Security relaxation lacks its required explicit declaration",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-security-0001",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-SECURITY-0002",
+      "subsystem": "SECURITY",
+      "summary": "Canary secret detected in a generated artifact",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-security-0002",
+      "status": "active"
+    },
+    {
+      "code": "NUSA-SERVER-0001",
+      "subsystem": "SERVER",
+      "summary": "Production request failed without a safe public classification",
+      "defaultSeverity": "error",
+      "stability": "experimental",
+      "documentationSlug": "/errors/nusa-server-0001",
+      "status": "active"
+    }
+  ]
+}

@@ -49,6 +49,8 @@ export type {
 export { RouteScanError, scanRouteFiles } from "./route-scanner.js";
 export type { GeneratedRouteTypes } from "./route-types.js";
 export { generateRouteTypes } from "./route-types.js";
+export type { CanarySecretScanOptions } from "./canary-secret-scanner.js";
+export { CANARY_SECRET_ERROR_CODE } from "./canary-secret-scanner.js";
 export type {
   NusaVitePluginOptions,
   NusaVitePluginState

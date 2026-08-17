@@ -7,6 +7,11 @@ import { createRouteManifest, type RouteManifest } from "./manifests.js";
 import { parseRouteGraph } from "./route-parser.js";
 import { scanRouteFiles } from "./route-scanner.js";
 import { generateRouteTypes } from "./route-types.js";
+import {
+  type CanarySecretScanOptions,
+  prepareCanaries,
+  scanCanarySecretArtifacts
+} from "./canary-secret-scanner.js";
 
 /** Public virtual module containing the current deterministic route manifest. */
 export const ROUTE_MANIFEST_VIRTUAL_ID = "virtual:nusajs/route-manifest";
@@ -24,6 +29,8 @@ export interface NusaVitePluginOptions {
   readonly configFile?: string | false;
   /** Route directory relative to the application root. */
   readonly routesDirectory?: string;
+  /** Exact canaries to scan from final build artifacts. Omit to disable canary scanning. */
+  readonly canarySecretScan?: Readonly<CanarySecretScanOptions>;
 }
 
 /** Inspectable state produced by the Vite integration. */
@@ -101,7 +108,11 @@ export function createNusaVitePlugin(options: Readonly<NusaVitePluginOptions> = 
   if (options.routesDirectory !== undefined && typeof options.routesDirectory !== "string")
     pluginFailure("routesDirectory must be a string");
 
+  const canaries =
+    options.canarySecretScan === undefined ? undefined : prepareCanaries(options.canarySecretScan);
+
   let root = options.root;
+  let outputRoot: string | undefined;
   let manifestCode = "";
   let typesCode = "";
   let state: Readonly<NusaVitePluginState> | undefined;
@@ -149,6 +160,7 @@ export function createNusaVitePlugin(options: Readonly<NusaVitePluginOptions> = 
       if (root !== undefined && resolve(root) !== resolvedRoot)
         pluginFailure("configured root does not match Vite's resolved root");
       root = root ?? resolvedRoot;
+      outputRoot = resolve(resolvedRoot, config.build.outDir);
     },
     async buildStart() {
       await rebuild((file) => this.addWatchFile(file));
@@ -175,6 +187,14 @@ export function createNusaVitePlugin(options: Readonly<NusaVitePluginOptions> = 
         }).outputText,
         map: null
       };
+    },
+    closeBundle: {
+      order: "post",
+      async handler() {
+        if (canaries === undefined) return;
+        if (outputRoot === undefined) pluginFailure("Vite output has not been resolved");
+        await scanCanarySecretArtifacts(outputRoot, canaries);
+      }
     },
     api: {
       getState(): Readonly<NusaVitePluginState> {

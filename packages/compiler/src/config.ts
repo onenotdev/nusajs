@@ -244,6 +244,7 @@ function validate(
       );
     }
   }
+  // biome-ignore lint/complexity/useLiteralKeys: strict index-signature access requires brackets.
   const receivedOutput = object["output"];
   if (receivedOutput !== undefined) {
     if (typeof receivedOutput !== "string" || !legalOutputs.has(receivedOutput)) {
@@ -259,6 +260,7 @@ function validate(
       output = receivedOutput as "server" | "static";
     }
   }
+  // biome-ignore lint/complexity/useLiteralKeys: strict index-signature access requires brackets.
   const security = object["security"];
   if (security !== undefined) {
     if (security === null || typeof security !== "object" || Array.isArray(security)) {
@@ -284,6 +286,7 @@ function validate(
           );
         }
       }
+      // biome-ignore lint/complexity/useLiteralKeys: strict index-signature access requires brackets.
       const mode = securityObject["mode"];
       if (mode !== undefined && mode !== "strict") {
         diagnostics.push(

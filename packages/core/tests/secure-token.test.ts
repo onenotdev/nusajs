@@ -45,7 +45,6 @@ describe("createSecureToken", () => {
       bytes.fill(7);
       return bytes;
     };
-    // biome-ignore lint/performance/noDelete: test-only global shim.
     const cryptoObject = globalThis.crypto as { getRandomValues: typeof original };
     cryptoObject.getRandomValues = spy as unknown as typeof original;
     try {
@@ -60,7 +59,6 @@ describe("createSecureToken", () => {
   it("fails closed when Web Crypto is unavailable", () => {
     const original = globalThis.crypto;
     const descriptor = Object.getOwnPropertyDescriptor(globalThis, "crypto");
-    // biome-ignore lint/performance/noDelete: test-only global shim.
     delete (globalThis as { crypto?: unknown }).crypto;
     try {
       expect(() => createSecureToken()).toThrow("[NUSA-SECURITY-0001]");

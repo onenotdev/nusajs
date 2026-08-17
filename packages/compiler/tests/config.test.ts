@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CONFIG_DOCS_SLUG, parseConfig } from "../src/index.js";
 
 function source(body: string): string {
-  return `import { defineConfig } from \"nusajs\";\n\nexport default defineConfig(${body});\n`;
+  return `import { defineConfig } from "nusajs";\n\nexport default defineConfig(${body});\n`;
 }
 
 describe("parseConfig", () => {
@@ -75,7 +75,7 @@ describe("parseConfig", () => {
 
   it("rejects reserved property names before assignment", () => {
     const result = parseConfig(
-      source('{ \"__proto__\": { polluted: true }, output: "server" }'),
+      source('{ "__proto__": { polluted: true }, output: "server" }'),
       "nusa.config.ts"
     );
     expect(result.valid).toBe(false);
@@ -84,7 +84,7 @@ describe("parseConfig", () => {
   });
 
   it("rejects unknown security properties and non-object security values", () => {
-    const nonObject = parseConfig(source('{ security: \"strict\" }'), "nusa.config.ts");
+    const nonObject = parseConfig(source('{ security: "strict" }'), "nusa.config.ts");
     expect(nonObject.valid).toBe(false);
     expect(nonObject.diagnostics[0]?.path).toBe("<config>.security");
     const unknown = parseConfig(source("{ security: { strict: true } }"), "nusa.config.ts");
@@ -118,7 +118,7 @@ describe("parseConfig", () => {
   });
 
   it("rejects excessive nesting depth", () => {
-    const deep = "{ a: ".repeat(10) + "1" + " }".repeat(10);
+    const deep = `${"{ a: ".repeat(10)}1${" }".repeat(10)}`;
     const result = parseConfig(source(deep), "nusa.config.ts");
     expect(result.valid).toBe(false);
     expect(result.diagnostics.some((entry) => entry.expected.includes("nesting depth"))).toBe(true);

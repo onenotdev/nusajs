@@ -105,6 +105,7 @@ describe("node adapter server", () => {
       bindings: [
         {
           route: routes[0],
+          // biome-ignore lint/complexity/useLiteralKeys: strict index-signature access requires brackets.
           load: (context) => `Post: ${context.params["slug"]}`
         }
       ]
@@ -214,7 +215,13 @@ describe("node adapter server", () => {
     const pipeline = createRequestHandler({
       matcher,
       renderer: bufferedRenderer(),
-      bindings: [{ route: routes[0], load: (context) => context.params["slug"] }]
+      bindings: [
+        {
+          route: routes[0],
+          // biome-ignore lint/complexity/useLiteralKeys: strict index-signature access requires brackets.
+          load: (context) => context.params["slug"]
+        }
+      ]
     });
     const { server, baseUrl } = await track(await startServer(pipeline));
     const ok = await fetch(`${baseUrl}/blog/hello`);
@@ -330,7 +337,7 @@ describe("node adapter server", () => {
         file: "stream.page.ts"
       }
     ] as const;
-    const matcher = createRouteMatcher(routes);
+    const _matcher = createRouteMatcher(routes);
     const renderer = defineRenderer({
       id: "test-streaming",
       deliveries: new Set(["streaming"]),
@@ -399,7 +406,7 @@ describe("node adapter server", () => {
         file: "hang.page.ts"
       }
     ] as const;
-    const matcher = createRouteMatcher(routes);
+    const _matcher = createRouteMatcher(routes);
     const renderer = defineRenderer({
       id: "test-abort",
       deliveries: new Set(["streaming"]),
@@ -484,7 +491,7 @@ describe("node adapter server", () => {
         file: "hang.page.ts"
       }
     ] as const;
-    const matcher = createRouteMatcher(routes);
+    const _matcher = createRouteMatcher(routes);
     const renderer = defineRenderer({
       id: "test-shutdown",
       deliveries: new Set(["streaming"]),

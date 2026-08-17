@@ -33,3 +33,15 @@ parameters fail closed with `NUSA-ROUTE-0001`.
 statically parses `nusa.config.ts`, securely scans `src/routes`, and serves deterministic
 `virtual:nusajs/route-manifest` and `virtual:nusajs/typed-routes` modules. It never imports route or
 configuration modules and installs no development-server middleware or network endpoint.
+
+Production security fixtures may opt into `canarySecretScan` with explicit printable-ASCII byte
+canaries. A post-ordered build hook scans every final regular output file as opaque bytes, including
+JavaScript, CSS, HTML, JSON manifests, binary assets, and external or inline source maps. A match,
+unsafe filesystem entry, unreadable output, or resource-limit breach fails the build with the
+redacted `NUSA-SECURITY-0002` diagnostic. Scanning cannot be suppressed and never stores canaries in
+plugin state or manifests.
+
+This exact-byte mechanism proves only that supplied test canaries are absent from scanned output. It
+does not discover arbitrary credentials, decode transformed values, implement client/server import
+taint analysis, or redact production logs and errors. Provider-side repository secret scanning and
+push protection remain separately required.
