@@ -233,7 +233,7 @@ M1 exit: all M1 P0 tasks are DONE; B01/B03 smoke passes; security evidence exist
 - [ ] **FW-704 [PROPOSED/P0] Dedicated benchmark publication** — depends FW-701
 - [ ] **FW-705 [PROPOSED/P0] Production deployment and security guides** — depends FW-214, FW-604, FW-605, FW-606
 - [ ] **FW-706 [PROPOSED/P0] Production design-partner validation** — depends FW-702, FW-705
-- [ ] **FW-709 [PROPOSED/P0] Vulnerability reporting and supported-version policy** — depends FW-008; created 2026-08-16 by FW-009 to own the `AC-SEC-10` artifacts that no task named (FW-008 finding F-10)
+- [ ] **FW-709 [BLOCKED/P0] Vulnerability reporting and supported-version policy** — depends FW-008 (DONE); promoted to `READY` 2026-08-17 under delegated autonomy, started and blocked 2026-08-17, agent: GitHub Copilot (`gpt-pro`); blocker: a core maintainer must enable GitHub Private Vulnerability Reporting for `onenotdev/nusajs` and confirm the private advisory form is reachable—both the feature endpoint and form returned 404 on 2026-08-17, so AC-1 cannot truthfully pass; created 2026-08-16 by FW-009 to own the `AC-SEC-10` artifacts that no task named (FW-008 finding F-10)
   - AC: AC-1 a public `SECURITY.md` exists with a private reporting channel; AC-2 supported release lines and end-of-support dates are published; AC-3 a severity rubric and coordinated-disclosure policy are published; AC-4 a reporter-credit method exists; AC-5 the internal response-window targets of `docs/09_SECURITY_PRD.md` section 24 are not published as guarantees.
 - [ ] **FW-707 [PROPOSED/P0] v1 release candidate** — depends FW-702, FW-703, FW-704, FW-705, FW-706, FW-709
 - [ ] **FW-708 [PROPOSED/P0] v1 stable release** — depends FW-707 and zero P0/P1 release blockers
