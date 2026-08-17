@@ -320,7 +320,12 @@ M1 exit: all M1 P0 tasks are DONE; B01/B03 smoke passes; security evidence exist
 - [ ] **FW-209 [PROPOSED/P1] Asset manifest, MIME, and serving controls** — depends FW-114
 - [ ] **FW-210 [PROPOSED/P0] Static generation engine** — depends FW-112, FW-203
 - [ ] **FW-211 [PROPOSED/P0] Static adapter** — depends FW-210
-- [ ] **FW-212 [PROPOSED/P0] Environment schema and client-secret guard** — depends FW-114, FW-120
+- [ ] **FW-212 [BLOCKED/P0] Environment schema and client-secret guard** — depends FW-114, FW-120 (DONE); blocked 2026-08-18, agent: GitHub Copilot (`gpt-pro`)
+  - Intended outcome: explicit schema-validated server/public environment namespaces, startup parsing, deterministic public serialization, static transitive client-boundary enforcement, name-only manifest visibility, and final-artifact defense in depth.
+  - Derived acceptance criteria: statically parsed closed schema with no execution; exact type/bounds/required validation; frozen prototype-safe startup results; prefix never exposes; direct/transitive alias/re-export/dynamic client violations fail; browser module contains only validated public values; security manifest derives sorted public names only; coded diagnostics expose no values/absolute paths; FW-120 independently catches final canaries; deterministic rebuilds, public API evidence, Vite fixtures, and full gates.
+  - Blockers: accepted requirements define security outcomes but not schema authoring/API, server/public namespace access, compiler graph targets, runtime parsing grammar/timing, virtual modules, browser serialization, diagnostics, or target-specific behavior. Current compiler has no application client/server module graph.
+  - Proposed ADR: ADR-037 recommends a statically analyzed `nusa.env.ts` + `defineEnvironment()` closed DSL, separate server/public virtual modules, one parse per startup snapshot, bundler-resolved transitive graph enforcement, unchanged name-only security-manifest v1, and FW-120 as a non-heuristic defense-in-depth backstop.
+  - Maintainer decision required: accept, amend, or reject ADR-037. No general secret detection, whole-program taint analysis, or static-adapter integration claim is made.
 - [ ] **FW-213 [PROPOSED/P0] Serialization v1 and XSS corpus** — depends FW-203
 - [ ] **FW-214 [PROPOSED/P0] Node/static conformance suite** — depends FW-113, FW-211
 - [ ] **FW-215 [PROPOSED/P1] Project generator** — depends FW-115
