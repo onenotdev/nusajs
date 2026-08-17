@@ -19,6 +19,6 @@ benchmarks/test-results/
 AGENTS.md
 CHECKLIST.md
 .github/copilot-instructions.md
-docs/
-templates/
-tests/
+/docs/
+/templates/
+/tests/

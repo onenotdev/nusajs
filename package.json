@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Workspace skeleton for the nusajs framework. Contains no framework features.",
+  "description": "Workspace for the NusaJS web framework.",
   "license": "MIT",
   "packageManager": "pnpm@11.5.1",
   "engines": {
@@ -14,7 +14,8 @@
     "format:check": "biome format .",
     "lint": "biome lint .",
     "check": "biome check .",
-    "typecheck": "tsc --build --force tsconfig.json",
+    "build": "pnpm --filter @nusajs/core build",
+    "typecheck": "pnpm run build && tsc --build --force tsconfig.json && pnpm --filter @nusajs/core typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
     "benchmark": "node benchmarks/harness.mjs",

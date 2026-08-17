@@ -43,8 +43,9 @@ publishable when their correctness and security prerequisites pass.
 
 ## Packages
 
-Publishable framework packages will live under `packages/`. The project currently contains the
-workspace and research infrastructure needed to establish the first stable package boundaries.
+- `@nusajs/core` — private, early-development universal package boundary. Its current root export
+	provides package identity metadata; runtime framework contracts will be added as their designs
+	stabilize.
 
 ## License
 

@@ -21,6 +21,8 @@ importers:
         specifier: 3.2.7
         version: 3.2.7(@types/node@24.10.1)(happy-dom@20.11.2)
 
+  packages/core: {}
+
   spikes/renderer-evaluation:
     devDependencies:
       esbuild:
