@@ -49,7 +49,13 @@ describe("core package boundary", () => {
       .replaceAll("\r\n", "\n")
       .replace(/^(?:\t+| +)/gm, "  ")
       .trim()}\n`;
-    const generated = ["index.d.ts", "diagnostics.d.ts", "request-context.d.ts", "renderer.d.ts"]
+    const generated = [
+      "index.d.ts",
+      "diagnostics.d.ts",
+      "request-context.d.ts",
+      "route-matcher.d.ts",
+      "renderer.d.ts"
+    ]
       .map((file) => {
         const declaration = readFileSync(join(packageRoot, "dist", file), "utf8")
           .replaceAll("\r\n", "\n")

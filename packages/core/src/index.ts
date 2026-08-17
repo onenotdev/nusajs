@@ -33,6 +33,14 @@ export type {
 } from "./diagnostics.js";
 export { createRequestContext } from "./request-context.js";
 export type { CreateRequestContextInput, RequestContext } from "./request-context.js";
+export { createRouteMatcher } from "./route-matcher.js";
+export type {
+  MatchRoute,
+  MatchRouteSegment,
+  MatchRouteSegmentKind,
+  RouteMatch,
+  RouteMatcher
+} from "./route-matcher.js";
 export { defineRenderer } from "./renderer.js";
 export type {
   BufferedRenderResult,

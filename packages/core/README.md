@@ -67,3 +67,31 @@ const renderer = defineRenderer({
 	}
 });
 ```
+
+Compiler-produced route records can be compiled once into a universal matcher. Pass the raw
+pathname before URL canonicalization and select the page or endpoint role explicitly:
+
+```ts
+import { createRouteMatcher } from "@nusajs/core";
+
+const matcher = createRouteMatcher([
+	{
+		kind: "page",
+		pattern: "/blog/[slug]",
+		segments: [
+			{ kind: "static", value: "blog" },
+			{ kind: "dynamic", value: "slug" }
+		],
+		specificity: [4, 3],
+		file: "blog/[slug].page.ts"
+	}
+]);
+
+const match = matcher.match("/blog/hello", "page");
+console.log(match?.params.slug);
+```
+
+Malformed escapes, encoded separators, dot segments, duplicate or non-root trailing slashes,
+controls, query/fragment syntax, and over-limit pathnames fail closed with no match. Parameters are
+decoded as strict UTF-8, normalized to NFC, copied into a frozen null-prototype record, and remain
+untrusted application input.

@@ -17,6 +17,10 @@ import {
   createRequestContext,
   type CreateRequestContextInput,
   type RequestContext,
+  createRouteMatcher,
+  type MatchRoute,
+  type RouteMatch,
+  type RouteMatcher,
   defineRenderer,
   type BufferedRenderResult,
   type Renderer,
@@ -97,3 +101,25 @@ if (result.delivery === "buffered") {
 }
 declare const streaming: StreamingRenderResult;
 streaming.body satisfies ReadableStream<Uint8Array>;
+
+const matchRoutes = [
+  {
+    kind: "page",
+    pattern: "/users/[id]",
+    segments: [
+      { kind: "static", value: "users" },
+      { kind: "dynamic", value: "id" }
+    ],
+    specificity: [4, 3],
+    file: "users/[id].page.ts"
+  }
+] as const satisfies readonly MatchRoute[];
+const routeMatcher: Readonly<RouteMatcher<(typeof matchRoutes)[number]>> =
+  createRouteMatcher(matchRoutes);
+const routeMatch: Readonly<RouteMatch<(typeof matchRoutes)[number]>> | undefined =
+  routeMatcher.match("/users/123", "page");
+// biome-ignore lint/complexity/useLiteralKeys: strict index signatures prohibit property access.
+routeMatch?.params["id"] satisfies string | undefined;
+
+// @ts-expect-error route role must be explicit and valid
+routeMatcher.match("/users/123", "handler");

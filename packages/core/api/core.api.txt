@@ -16,6 +16,8 @@ export { createDiagnostic, formatDevelopmentDiagnostic, formatProductionDiagnost
 export type { ActiveDiagnosticCode, Diagnostic, DiagnosticCode, DiagnosticInput, DiagnosticSeverity, ProductionDiagnostic, SourcePosition, SourceRange } from "./diagnostics.js";
 export { createRequestContext } from "./request-context.js";
 export type { CreateRequestContextInput, RequestContext } from "./request-context.js";
+export { createRouteMatcher } from "./route-matcher.js";
+export type { MatchRoute, MatchRouteSegment, MatchRouteSegmentKind, RouteMatch, RouteMatcher } from "./route-matcher.js";
 export { defineRenderer } from "./renderer.js";
 export type { BufferedRenderResult, Renderer, RendererDelivery, RenderInput, RenderResult, StreamingRenderResult } from "./renderer.js";
 
@@ -118,6 +120,44 @@ export interface CreateRequestContextInput<Env = unknown> {
  * must supply request-local environment state where mutation is possible.
  */
 export declare function createRequestContext<Env>(input: CreateRequestContextInput<Env>): Readonly<RequestContext<Env>>;
+
+## route-matcher.d.ts
+/** Semantic route segment kinds accepted from the compiler route graph. */
+export type MatchRouteSegmentKind = "static" | "dynamic" | "optional" | "catch-all" | "optional-catch-all";
+/** Structurally compatible immutable segment consumed by the universal matcher. */
+export interface MatchRouteSegment {
+	readonly kind: MatchRouteSegmentKind;
+	readonly value: string;
+}
+/** Structurally compatible page or endpoint route consumed by the universal matcher. */
+export interface MatchRoute {
+	readonly kind: "page" | "endpoint";
+	readonly pattern: string;
+	readonly segments: readonly Readonly<MatchRouteSegment>[];
+	readonly specificity: readonly number[];
+	readonly file: string;
+}
+/** Immutable successful route match. */
+export interface RouteMatch<Route extends MatchRoute = MatchRoute> {
+	readonly route: Readonly<Route>;
+	readonly params: Readonly<Record<string, string>>;
+}
+/** A reusable universal matcher compiled from an immutable route list. */
+export interface RouteMatcher<Route extends MatchRoute = MatchRoute> {
+	readonly routes: readonly Readonly<Route>[];
+	readonly match: (pathname: string, kind: MatchRoute["kind"]) => Readonly<RouteMatch<Route>> | undefined;
+}
+/**
+ * Creates a reusable universal matcher from compiler-produced route records.
+ *
+ * The matcher accepts only a raw pathname beginning with `/`. It rejects malformed escapes,
+ * separators, dot segments, duplicate or non-root trailing slashes, controls, query/fragment
+ * syntax, paths above 8 KiB, and paths above 256 segments. Decoded segments are normalized to NFC
+ * and static comparisons remain case-sensitive.
+ *
+ * @param routes - Structurally compatible parsed routes with parser-derived specificity keys.
+ */
+export declare function createRouteMatcher<Route extends MatchRoute>(routes: readonly Readonly<Route>[]): Readonly<RouteMatcher<Route>>;
 
 ## renderer.d.ts
 import type { RequestContext } from "./request-context.js";
