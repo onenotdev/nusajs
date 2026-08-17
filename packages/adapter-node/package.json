@@ -1,0 +1,30 @@
+{
+  "name": "@nusajs/adapter-node",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Minimal Node.js adapter for the NusaJS universal request pipeline",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "tsc --build --force tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.type-tests.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nusajs/core": "workspace:*"
+  }
+}

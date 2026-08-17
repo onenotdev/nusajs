@@ -1,0 +1,65 @@
+## index.d.ts
+export type { NodeListenOptions, NodeListenResult, NodeServer, NodeServerOptions } from "./node-server.js";
+export { createNodeServer } from "./node-server.js";
+
+## node-server.d.ts
+import { type Server as HttpServer } from "node:http";
+import type { MatchRoute, RequestHandler } from "@nusajs/core";
+/** Configuration for a minimal Node.js adapter server. */
+export interface NodeServerOptions<Env = unknown> {
+  /** The universal request pipeline that serves every accepted request. */
+  readonly handler: Readonly<RequestHandler<MatchRoute, unknown, Env>>;
+  /**
+  * Honors `X-Forwarded-Host` and `X-Forwarded-Proto` when the server runs behind a
+  * trusted proxy. Defaults to `false`; forwarded headers are otherwise ignored.
+  */
+  readonly trustProxy?: boolean;
+  /** Maximum raw request-target length in characters. Defaults to 16 KiB. */
+  readonly maxUrlLength?: number;
+  /** Maximum request body size in bytes. Defaults to 1 MiB. */
+  readonly maxRequestSize?: number;
+  /** Maximum HTTP header block size in bytes passed to `node:http`. Defaults to 16 KiB. */
+  readonly maxHeaderSize?: number;
+  /** Maximum HTTP header count passed to `node:http`. Defaults to 2000. */
+  readonly maxHeadersCount?: number;
+  /** Bounded grace period in milliseconds for in-flight requests during shutdown. */
+  readonly shutdownTimeoutMs?: number;
+  /** Creates fresh request-local environment state. Defaults to an empty object. */
+  readonly createEnv?: () => Env;
+  /** Creates a URL-safe request identifier. Defaults to `crypto.randomUUID()`. */
+  readonly createRequestId?: () => string;
+  /** Receives handled request failures with only the redacted request identifier. */
+  readonly onError?: (error: unknown, requestId: string) => void;
+}
+/** The resolved listen address of a running Node adapter server. */
+export interface NodeListenResult {
+  readonly hostname: string;
+  readonly port: number;
+}
+/** Options accepted by {@link NodeServer.listen}. */
+export interface NodeListenOptions {
+  readonly hostname?: string;
+  readonly port?: number;
+}
+/**
+  * A minimal Node.js server that bridges `node:http` and the universal request pipeline.
+  *
+  * The raw request-target is passed to the pipeline unmodified; malformed HTTP is rejected by
+  * the maintained `node:http` parser. Client disconnects propagate through the pipeline signal.
+  */
+export interface NodeServer {
+  /** The underlying `node:http` server. */
+  readonly server: Readonly<HttpServer>;
+  /** Starts listening and resolves with the bound address. */
+  listen(options?: NodeListenOptions): Promise<NodeListenResult>;
+  /** Stops accepting work, waits a bounded time, then aborts remaining requests. */
+  shutdown(): Promise<void>;
+}
+/**
+  * Creates a minimal Node.js adapter server around a universal request handler.
+  *
+  * The server validates the request-target origin form and host header, enforces conservative
+  * URL and body limits, passes the raw pathname to the pipeline, and converts pipeline responses
+  * with streaming backpressure. Handler failures produce a redacted production diagnostic.
+  */
+export declare function createNodeServer<Env>(options: NodeServerOptions<Env>): Readonly<NodeServer>;
