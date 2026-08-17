@@ -14,3 +14,20 @@ export type CorePackageName = typeof CORE_PACKAGE_NAME;
 
 /** The literal type of the coordinated framework version. */
 export type CoreVersion = typeof CORE_VERSION;
+
+export {
+  createDiagnostic,
+  formatDevelopmentDiagnostic,
+  formatProductionDiagnostic,
+  serializeDevelopmentDiagnostic
+} from "./diagnostics.js";
+export type {
+  ActiveDiagnosticCode,
+  Diagnostic,
+  DiagnosticCode,
+  DiagnosticInput,
+  DiagnosticSeverity,
+  ProductionDiagnostic,
+  SourcePosition,
+  SourceRange
+} from "./diagnostics.js";

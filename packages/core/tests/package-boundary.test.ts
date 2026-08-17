@@ -47,12 +47,18 @@ describe("core package boundary", () => {
   it("matches the committed deterministic API report", () => {
     const report = `${readFileSync(join(packageRoot, "api", "core.api.txt"), "utf8")
       .replaceAll("\r\n", "\n")
+      .replace(/^(?:\t+| +)/gm, "  ")
       .trim()}\n`;
-    const declaration = readFileSync(join(packageRoot, "dist", "index.d.ts"), "utf8")
-      .replaceAll("\r\n", "\n")
-      .replace(/^\/\/# sourceMappingURL=.*$/gm, "")
-      .trim();
-    const generated = `## index.d.ts\n${declaration}\n`;
+    const generated = ["index.d.ts", "diagnostics.d.ts"]
+      .map((file) => {
+        const declaration = readFileSync(join(packageRoot, "dist", file), "utf8")
+          .replaceAll("\r\n", "\n")
+          .replace(/^\/\/# sourceMappingURL=.*$/gm, "")
+          .replace(/^(?:\t+| +)/gm, "  ")
+          .trim();
+        return `## ${file}\n${declaration}\n`;
+      })
+      .join("\n");
     expect(generated).toBe(report);
   });
 
@@ -60,7 +66,12 @@ describe("core package boundary", () => {
     for (const file of readdirSync(join(packageRoot, "dist"), { recursive: true })) {
       if (typeof file !== "string" || !file.endsWith(".js")) continue;
       const output = readFileSync(join(packageRoot, "dist", file), "utf8");
-      expect(output, relative(packageRoot, file)).not.toMatch(/(?:from\s+|import\s*\()["']/);
+      const imports = [...output.matchAll(/(?:from\s+|import\s*\()["']([^"']+)["']/g)].map(
+        (match) => match[1]
+      );
+      expect(imports, relative(packageRoot, file)).toEqual(
+        imports.filter((specifier) => specifier?.startsWith("./") || specifier?.startsWith("../"))
+      );
       expect(output).not.toMatch(/["']node:/);
     }
   });
