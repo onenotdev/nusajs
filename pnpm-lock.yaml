@@ -27,6 +27,15 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/cli:
+    dependencies:
+      '@nusajs/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      vite:
+        specifier: 7.3.6
+        version: 7.3.6(@types/node@24.10.1)
+
   packages/compiler:
     dependencies:
       typescript:
