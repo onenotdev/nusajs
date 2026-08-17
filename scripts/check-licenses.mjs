@@ -32,19 +32,18 @@ const allowedLicenses = new Set([
 function readInstalledLicenses() {
   // Prefer the package-manager entry point that invoked this script, run
   // directly by the current Node binary: no shell, no argument concatenation.
-  const execPath = process.env["npm_execpath"];
-  const raw =
-    execPath !== undefined && execPath.endsWith(".cjs")
-      ? execFileSync(process.execPath, [execPath, "licenses", "list", "--json"], {
-          cwd: repositoryRoot,
-          encoding: "utf8"
-        })
-      : // Standalone invocation. The command is a fixed literal with no
-        // interpolated value, so a shell cannot be induced to run anything else.
-        execSync("pnpm licenses list --json", {
-          cwd: repositoryRoot,
-          encoding: "utf8"
-        });
+  const execPath = process.env.npm_execpath;
+  const raw = execPath?.endsWith(".cjs")
+    ? execFileSync(process.execPath, [execPath, "licenses", "list", "--json"], {
+        cwd: repositoryRoot,
+        encoding: "utf8"
+      })
+    : // Standalone invocation. The command is a fixed literal with no
+      // interpolated value, so a shell cannot be induced to run anything else.
+      execSync("pnpm licenses list --json", {
+        cwd: repositoryRoot,
+        encoding: "utf8"
+      });
 
   const start = raw.indexOf("{");
   if (start < 0) {
