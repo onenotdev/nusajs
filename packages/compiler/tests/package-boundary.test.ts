@@ -10,6 +10,7 @@ const manifest = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf
   type: string;
   exports: Record<string, unknown>;
   dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
 };
 
 describe("compiler package boundary", () => {
@@ -21,6 +22,11 @@ describe("compiler package boundary", () => {
     // The static, non-executing config loader parses configuration through the same
     // TypeScript parser the repository toolchain already pins (ADR-005 toolchain).
     expect(manifest.dependencies).toEqual({ typescript: "5.9.3", vite: "7.3.6" });
+    expect(manifest.devDependencies).toEqual({
+      "@nusajs/adapter-node": "workspace:*",
+      "@nusajs/core": "workspace:*",
+      "@nusajs/renderer-preact": "workspace:*"
+    });
   });
 
   it("keeps built output limited to relative modules and explicit Node built-ins", () => {

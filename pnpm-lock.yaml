@@ -44,6 +44,16 @@ importers:
       vite:
         specifier: 7.3.6
         version: 7.3.6(@types/node@24.10.1)
+    devDependencies:
+      '@nusajs/adapter-node':
+        specifier: workspace:*
+        version: link:../adapter-node
+      '@nusajs/core':
+        specifier: workspace:*
+        version: link:../core
+      '@nusajs/renderer-preact':
+        specifier: workspace:*
+        version: link:../renderer-preact
 
   packages/core: {}
 
