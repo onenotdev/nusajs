@@ -1,10 +1,14 @@
 # ADR-018: Core package and public entry points
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-17
 - Owner: Core maintainers; drafted by GitHub Copilot (`gpt-pro`) under delegated autonomy
 - Related tasks: FW-101, FW-102, FW-103, FW-104, FW-109, FW-111, FW-117, FW-123, FW-701
 - Security impact: medium
+
+Accepted by the core maintainer on 2026-08-17. The optional
+`@nusajs/core/experimental` entry point remains absent until it has a useful export; FW-101 must not
+publish an empty entry point merely to reserve the path.
 
 ## Context
 

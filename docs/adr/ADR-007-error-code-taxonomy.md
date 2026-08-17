@@ -1,10 +1,14 @@
 # ADR-007: Error-code taxonomy
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-17
 - Owner: Core maintainers; drafted by GitHub Copilot (`gpt-pro`) under delegated autonomy
 - Related tasks: FW-006, FW-102, FW-107, FW-215, FW-216, FW-309, FW-701, FW-703
 - Security impact: high
+
+Accepted by the core maintainer on 2026-08-17. Acceptance resolves the open verification question
+in favor of the stricter rule already stated by C4: experimental codes also receive permanent
+tombstones and may not be reused after removal.
 
 ## Context
 
