@@ -16,6 +16,8 @@ export { createDiagnostic, formatDevelopmentDiagnostic, formatProductionDiagnost
 export type { ActiveDiagnosticCode, Diagnostic, DiagnosticCode, DiagnosticInput, DiagnosticSeverity, ProductionDiagnostic, SourcePosition, SourceRange } from "./diagnostics.js";
 export { createRequestContext } from "./request-context.js";
 export type { CreateRequestContextInput, RequestContext } from "./request-context.js";
+export { defineRenderer } from "./renderer.js";
+export type { BufferedRenderResult, Renderer, RendererDelivery, RenderInput, RenderResult, StreamingRenderResult } from "./renderer.js";
 
 ## diagnostics.d.ts
 /** The severities supported by NusaJS diagnostics. */
@@ -116,3 +118,44 @@ export interface CreateRequestContextInput<Env = unknown> {
  * must supply request-local environment state where mutation is possible.
  */
 export declare function createRequestContext<Env>(input: CreateRequestContextInput<Env>): Readonly<RequestContext<Env>>;
+
+## renderer.d.ts
+import type { RequestContext } from "./request-context.js";
+/** Delivery forms supported by a renderer implementation. */
+export type RendererDelivery = "buffered" | "streaming";
+/** Immutable input passed to a renderer for one request. */
+export interface RenderInput<Value = unknown, Env = unknown> {
+	readonly value: Value;
+	readonly context: Readonly<RequestContext<Env>>;
+	readonly signal: AbortSignal;
+}
+/** Buffered UTF-8 HTML produced before response commitment. */
+export interface BufferedRenderResult {
+	readonly delivery: "buffered";
+	readonly body: string;
+	readonly status: number;
+	readonly headers: Headers;
+	readonly close: () => void | Promise<void>;
+}
+/** Streaming HTML bytes produced with Web-Standard backpressure and cancellation. */
+export interface StreamingRenderResult {
+	readonly delivery: "streaming";
+	readonly body: ReadableStream<Uint8Array>;
+	readonly status: number;
+	readonly headers: Headers;
+	readonly close: () => void | Promise<void>;
+}
+/** Renderer output whose metadata is finalized before its body is committed. */
+export type RenderResult = BufferedRenderResult | StreamingRenderResult;
+/** Public implementation contract shared by every renderer. */
+export interface Renderer<Value = unknown, Env = unknown> {
+	readonly id: string;
+	readonly deliveries: ReadonlySet<RendererDelivery>;
+	readonly render: (input: RenderInput<Value, Env>) => Promise<RenderResult>;
+}
+/**
+ * Validates and freezes a renderer descriptor without importing a renderer implementation.
+ *
+ * Request-local state belongs only in `RenderInput`; descriptors must be safe to share globally.
+ */
+export declare function defineRenderer<Value, Env>(renderer: Renderer<Value, Env>): Renderer<Value, Env>;

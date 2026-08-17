@@ -33,3 +33,12 @@ export type {
 } from "./diagnostics.js";
 export { createRequestContext } from "./request-context.js";
 export type { CreateRequestContextInput, RequestContext } from "./request-context.js";
+export { defineRenderer } from "./renderer.js";
+export type {
+  BufferedRenderResult,
+  Renderer,
+  RendererDelivery,
+  RenderInput,
+  RenderResult,
+  StreamingRenderResult
+} from "./renderer.js";

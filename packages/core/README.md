@@ -46,3 +46,24 @@ const context = createRequestContext({
 
 context.locals.set(Symbol.for("example"), "request-local value");
 ```
+
+Renderers remain behind a universal contract and receive request-local state explicitly:
+
+```ts
+import { defineRenderer } from "@nusajs/core";
+
+const renderer = defineRenderer({
+	id: "example",
+	deliveries: new Set(["buffered"]),
+	render: async ({ value, signal }) => {
+		signal.throwIfAborted();
+		return {
+			delivery: "buffered",
+			body: String(value),
+			status: 200,
+			headers: new Headers({ "content-type": "text/html; charset=utf-8" }),
+			close: () => undefined
+		};
+	}
+});
+```

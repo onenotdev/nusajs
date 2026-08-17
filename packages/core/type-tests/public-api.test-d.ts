@@ -16,7 +16,13 @@ import {
   type CoreVersion,
   createRequestContext,
   type CreateRequestContextInput,
-  type RequestContext
+  type RequestContext,
+  defineRenderer,
+  type BufferedRenderResult,
+  type Renderer,
+  type RenderInput,
+  type RenderResult,
+  type StreamingRenderResult
 } from "@nusajs/core";
 
 const packageName: CorePackageName = CORE_PACKAGE_NAME;
@@ -67,3 +73,27 @@ context.env.binding satisfies string;
 
 // @ts-expect-error params values are strings
 createRequestContext({ ...contextInput, params: { id: 123 } });
+
+const renderer: Renderer<string, { binding: string }> = defineRenderer({
+  id: "example",
+  deliveries: new Set(["buffered"]),
+  render: async (input: RenderInput<string, { binding: string }>): Promise<RenderResult> => ({
+    delivery: "buffered",
+    body: input.value,
+    status: 200,
+    headers: new Headers(),
+    close: () => undefined
+  })
+});
+renderer satisfies Renderer<string, { binding: string }>;
+
+const result: RenderResult = await renderer.render({
+  value: "html",
+  context,
+  signal: context.signal
+});
+if (result.delivery === "buffered") {
+  result satisfies BufferedRenderResult;
+}
+declare const streaming: StreamingRenderResult;
+streaming.body satisfies ReadableStream<Uint8Array>;
