@@ -19,6 +19,8 @@ export interface ParsedRoute {
   readonly kind: "page" | "endpoint";
   readonly pattern: string;
   readonly collisionKey: string;
+  /** Filesystem directory ancestry with URL-transparent groups retained. */
+  readonly branch: readonly string[];
   readonly segments: readonly Readonly<RouteSegment>[];
   readonly specificity: readonly number[];
   readonly file: string;
@@ -28,6 +30,8 @@ export interface ParsedRoute {
 export interface RouteBoundary {
   readonly kind: "layout" | "error" | "loading";
   readonly scope: string;
+  /** Filesystem directory ancestry with URL-transparent groups retained. */
+  readonly branch: readonly string[];
   readonly file: string;
 }
 
@@ -137,9 +141,15 @@ function shadowKeys(segments: readonly RouteSegment[]): readonly string[] {
   return [...keys];
 }
 
-function parseParts(record: RouteFileRecord): readonly string[] {
+function structuralBranch(record: RouteFileRecord): readonly string[] {
   const pathParts = record.normalizedPath.split("/");
-  const filename = pathParts.pop() ?? "";
+  pathParts.pop();
+  return pathParts;
+}
+
+function parseParts(record: RouteFileRecord, branch: readonly string[]): readonly string[] {
+  const pathParts = [...branch];
+  const filename = record.normalizedPath.split("/").at(-1) ?? "";
   if (record.kind === "page" || record.kind === "endpoint") {
     const stem = filename.replace(extensionPattern, "").replace(routeSuffixPattern, "");
     if (stem !== "index") pathParts.push(stem);
@@ -154,7 +164,9 @@ export function parseRouteGraph(records: readonly RouteFileRecord[]): Readonly<R
   const diagnostics: RouteScanDiagnostic[] = [];
 
   for (const record of records) {
-    const rawParts = parseParts(record);
+    const branch = structuralBranch(record);
+    const frozenBranch = Object.freeze([...branch]);
+    const rawParts = parseParts(record, branch);
     const parsed = rawParts.map(parseSegment);
     const invalidIndex = parsed.indexOf(undefined);
     if (invalidIndex >= 0) {
@@ -184,7 +196,12 @@ export function parseRouteGraph(records: readonly RouteFileRecord[]): Readonly<R
     const pattern = `/${segments.map(renderedSegment).join("/")}`.replace(/\/+$/, "") || "/";
     if (record.kind === "layout" || record.kind === "error" || record.kind === "loading") {
       boundaries.push(
-        Object.freeze({ kind: record.kind, scope: pattern, file: record.relativePath })
+        Object.freeze({
+          kind: record.kind,
+          scope: pattern,
+          branch: frozenBranch,
+          file: record.relativePath
+        })
       );
     } else {
       const frozenSegments = Object.freeze(segments.map((segment) => Object.freeze(segment)));
@@ -193,10 +210,33 @@ export function parseRouteGraph(records: readonly RouteFileRecord[]): Readonly<R
           kind: record.kind,
           pattern,
           collisionKey: `/${segments.map(collisionSegment).join("/")}`.replace(/\/+$/, "") || "/",
+          branch: frozenBranch,
           segments: frozenSegments,
           specificity: Object.freeze(segments.map(score)),
           file: record.relativePath
         })
+      );
+    }
+  }
+
+  const layoutsByBranch = new Map<string, string[]>();
+  for (const boundary of boundaries) {
+    if (boundary.kind !== "layout") continue;
+    const key = JSON.stringify(boundary.branch);
+    const files = layoutsByBranch.get(key) ?? [];
+    files.push(boundary.file);
+    layoutsByBranch.set(key, files);
+  }
+  for (const files of layoutsByBranch.values()) {
+    if (files.length < 2) continue;
+    const sortedFiles = files.sort((left, right) => left.localeCompare(right, "en"));
+    for (const file of sortedFiles) {
+      diagnostics.push(
+        routeDiagnostic(
+          `duplicate layout position: ${sortedFiles.join(", ")}`,
+          file,
+          "Keep exactly one _layout module in each structural route directory"
+        )
       );
     }
   }
@@ -251,7 +291,10 @@ export function parseRouteGraph(records: readonly RouteFileRecord[]): Readonly<R
   routes.sort(compareSpecificity);
   boundaries.sort(
     (left, right) =>
-      left.scope.localeCompare(right.scope, "en") || left.kind.localeCompare(right.kind, "en")
+      left.branch.length - right.branch.length ||
+      JSON.stringify(left.branch).localeCompare(JSON.stringify(right.branch), "en") ||
+      left.kind.localeCompare(right.kind, "en") ||
+      left.file.localeCompare(right.file, "en")
   );
   return Object.freeze({ routes: Object.freeze(routes), boundaries: Object.freeze(boundaries) });
 }

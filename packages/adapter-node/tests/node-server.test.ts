@@ -4,6 +4,7 @@ import {
   createRouteMatcher,
   defineRenderer,
   type MatchRoute,
+  type RequestRouteBinding,
   type RequestHandler
 } from "@nusajs/core";
 import { afterEach, describe, expect, it } from "vitest";
@@ -26,7 +27,7 @@ function bufferedRenderer(close: () => void = () => undefined) {
 }
 
 function pipelineFor(
-  bindings: Parameters<typeof createRequestHandler>[0]["bindings"],
+  bindings: readonly Readonly<RequestRouteBinding<MatchRoute, unknown, unknown, never>>[],
   renderer = bufferedRenderer()
 ) {
   const routes = bindings.map((binding) => binding.route);

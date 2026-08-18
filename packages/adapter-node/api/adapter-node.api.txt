@@ -6,9 +6,9 @@ export { createNodeServer } from "./node-server.js";
 import { type Server as HttpServer } from "node:http";
 import type { MatchRoute, RequestHandler } from "@nusajs/core";
 /** Configuration for a minimal Node.js adapter server. */
-export interface NodeServerOptions<Env = unknown> {
+export interface NodeServerOptions<Env = unknown, Layout = never> {
   /** The universal request pipeline that serves every accepted request. */
-  readonly handler: Readonly<RequestHandler<MatchRoute, unknown, Env>>;
+  readonly handler: Readonly<RequestHandler<MatchRoute, unknown, Env, Layout>>;
   /**
   * Honors `X-Forwarded-Host` and `X-Forwarded-Proto` when the server runs behind a
   * trusted proxy. Defaults to `false`; forwarded headers are otherwise ignored.
@@ -62,4 +62,4 @@ export interface NodeServer {
   * URL and body limits, passes the raw pathname to the pipeline, and converts pipeline responses
   * with streaming backpressure. Handler failures produce a redacted production diagnostic.
   */
-export declare function createNodeServer<Env>(options: NodeServerOptions<Env>): Readonly<NodeServer>;
+export declare function createNodeServer<Env, Layout = never>(options: NodeServerOptions<Env, Layout>): Readonly<NodeServer>;

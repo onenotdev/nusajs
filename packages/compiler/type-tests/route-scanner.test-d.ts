@@ -14,6 +14,7 @@ const parsed: ParsedRoute = {
   kind: "page",
   pattern: "/about",
   collisionKey: "/about",
+  branch: [],
   segments: [{ kind: "static", value: "about" }],
   specificity: [4],
   file: "about.page.ts"

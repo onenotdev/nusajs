@@ -105,6 +105,7 @@ renderer satisfies Renderer<string, { binding: string }>;
 
 const result: RenderResult = await renderer.render({
   value: "html",
+  layouts: [],
   context,
   signal: context.signal
 });

@@ -131,11 +131,13 @@ import type { Renderer } from "./renderer.js";
 import type { RequestContext } from "./request-context.js";
 import type { MatchRoute, RouteMatcher } from "./route-matcher.js";
 /** A page route and its request-local value loader. */
-export interface PageRouteBinding<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
+export interface PageRouteBinding<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown, Layout = never> {
   readonly route: Readonly<Route> & {
   readonly kind: "page";
   };
   readonly load: (context: Readonly<RequestContext<Env>>) => Value | Promise<Value>;
+  /** Renderer-specific layouts ordered from root to nearest child. */
+  readonly layouts?: readonly Layout[];
 }
 /** An endpoint route and its Web-Standard request handler. */
 export interface EndpointRouteBinding<Route extends MatchRoute = MatchRoute, Env = unknown> {
@@ -145,12 +147,12 @@ export interface EndpointRouteBinding<Route extends MatchRoute = MatchRoute, Env
   readonly handle: (context: Readonly<RequestContext<Env>>) => Response | Promise<Response>;
 }
 /** A role-specific application binding for one matcher route object. */
-export type RequestRouteBinding<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> = PageRouteBinding<Route, Value, Env> | EndpointRouteBinding<Route, Env>;
+export type RequestRouteBinding<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown, Layout = never> = PageRouteBinding<Route, Value, Env, Layout> | EndpointRouteBinding<Route, Env>;
 /** Immutable configuration used to create a universal request handler. */
-export interface CreateRequestHandlerOptions<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
+export interface CreateRequestHandlerOptions<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown, Layout = never> {
   readonly matcher: Readonly<RouteMatcher<Route>>;
-  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
-  readonly renderer: Readonly<Renderer<Value, Env>>;
+  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env, Layout>>[];
+  readonly renderer: Readonly<Renderer<Value, Env, Layout>>;
 }
 /** Request-local adapter input supplied to the universal pipeline. */
 export interface HandleRequestInput<Env = unknown> {
@@ -162,9 +164,9 @@ export interface HandleRequestInput<Env = unknown> {
   readonly waitUntil?: (promise: Promise<unknown>) => void;
 }
 /** A reusable, immutable universal request pipeline. */
-export interface RequestHandler<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown> {
+export interface RequestHandler<Route extends MatchRoute = MatchRoute, Value = unknown, Env = unknown, Layout = never> {
   readonly matcher: Readonly<RouteMatcher<Route>>;
-  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
+  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env, Layout>>[];
   readonly handle: (input: HandleRequestInput<Env>) => Promise<Response>;
 }
 /**
@@ -174,7 +176,7 @@ export interface RequestHandler<Route extends MatchRoute = MatchRoute, Value = u
   * through unchanged. Page rendering supports buffered and backpressure-aware streaming output;
   * renderer cleanup runs exactly once after buffered conversion or stream completion/cancellation.
   */
-export declare function createRequestHandler<Route extends MatchRoute, Value, Env>(options: CreateRequestHandlerOptions<Route, Value, Env>): Readonly<RequestHandler<Route, Value, Env>>;
+export declare function createRequestHandler<Route extends MatchRoute, Value, Env, Layout = never>(options: CreateRequestHandlerOptions<Route, Value, Env, Layout>): Readonly<RequestHandler<Route, Value, Env, Layout>>;
 
 ## route-matcher.d.ts
 /** Semantic route segment kinds accepted from the compiler route graph. */
@@ -219,8 +221,10 @@ import type { RequestContext } from "./request-context.js";
 /** Delivery forms supported by a renderer implementation. */
 export type RendererDelivery = "buffered" | "streaming";
 /** Immutable input passed to a renderer for one request. */
-export interface RenderInput<Value = unknown, Env = unknown> {
+export interface RenderInput<Value = unknown, Env = unknown, Layout = never> {
   readonly value: Value;
+  /** Renderer-specific layout values ordered from root to nearest child. */
+  readonly layouts: readonly Layout[];
   readonly context: Readonly<RequestContext<Env>>;
   readonly signal: AbortSignal;
 }
@@ -243,17 +247,17 @@ export interface StreamingRenderResult {
 /** Renderer output whose metadata is finalized before its body is committed. */
 export type RenderResult = BufferedRenderResult | StreamingRenderResult;
 /** Public implementation contract shared by every renderer. */
-export interface Renderer<Value = unknown, Env = unknown> {
+export interface Renderer<Value = unknown, Env = unknown, Layout = never> {
   readonly id: string;
   readonly deliveries: ReadonlySet<RendererDelivery>;
-  readonly render: (input: RenderInput<Value, Env>) => Promise<RenderResult>;
+  readonly render: (input: RenderInput<Value, Env, Layout>) => Promise<RenderResult>;
 }
 /**
   * Validates and freezes a renderer descriptor without importing a renderer implementation.
   *
   * Request-local state belongs only in `RenderInput`; descriptors must be safe to share globally.
   */
-export declare function defineRenderer<Value, Env>(renderer: Renderer<Value, Env>): Renderer<Value, Env>;
+export declare function defineRenderer<Value, Env, Layout = never>(renderer: Renderer<Value, Env, Layout>): Renderer<Value, Env, Layout>;
 
 ## secure-token.d.ts
 /**

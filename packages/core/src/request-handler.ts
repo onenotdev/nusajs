@@ -7,10 +7,13 @@ import type { MatchRoute, RouteMatcher } from "./route-matcher.js";
 export interface PageRouteBinding<
   Route extends MatchRoute = MatchRoute,
   Value = unknown,
-  Env = unknown
+  Env = unknown,
+  Layout = never
 > {
   readonly route: Readonly<Route> & { readonly kind: "page" };
   readonly load: (context: Readonly<RequestContext<Env>>) => Value | Promise<Value>;
+  /** Renderer-specific layouts ordered from root to nearest child. */
+  readonly layouts?: readonly Layout[];
 }
 
 /** An endpoint route and its Web-Standard request handler. */
@@ -23,18 +26,20 @@ export interface EndpointRouteBinding<Route extends MatchRoute = MatchRoute, Env
 export type RequestRouteBinding<
   Route extends MatchRoute = MatchRoute,
   Value = unknown,
-  Env = unknown
-> = PageRouteBinding<Route, Value, Env> | EndpointRouteBinding<Route, Env>;
+  Env = unknown,
+  Layout = never
+> = PageRouteBinding<Route, Value, Env, Layout> | EndpointRouteBinding<Route, Env>;
 
 /** Immutable configuration used to create a universal request handler. */
 export interface CreateRequestHandlerOptions<
   Route extends MatchRoute = MatchRoute,
   Value = unknown,
-  Env = unknown
+  Env = unknown,
+  Layout = never
 > {
   readonly matcher: Readonly<RouteMatcher<Route>>;
-  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
-  readonly renderer: Readonly<Renderer<Value, Env>>;
+  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env, Layout>>[];
+  readonly renderer: Readonly<Renderer<Value, Env, Layout>>;
 }
 
 /** Request-local adapter input supplied to the universal pipeline. */
@@ -51,10 +56,11 @@ export interface HandleRequestInput<Env = unknown> {
 export interface RequestHandler<
   Route extends MatchRoute = MatchRoute,
   Value = unknown,
-  Env = unknown
+  Env = unknown,
+  Layout = never
 > {
   readonly matcher: Readonly<RouteMatcher<Route>>;
-  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
+  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env, Layout>>[];
   readonly handle: (input: HandleRequestInput<Env>) => Promise<Response>;
 }
 
@@ -73,35 +79,46 @@ function isObject(value: unknown): value is Record<PropertyKey, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function copyBindings<Route extends MatchRoute, Value, Env>(
+function copyBindings<Route extends MatchRoute, Value, Env, Layout>(
   matcher: Readonly<RouteMatcher<Route>>,
-  bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[]
+  bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env, Layout>>[]
 ): {
-  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env>>[];
-  readonly byRoute: ReadonlyMap<Readonly<Route>, Readonly<RequestRouteBinding<Route, Value, Env>>>;
+  readonly bindings: readonly Readonly<RequestRouteBinding<Route, Value, Env, Layout>>[];
+  readonly byRoute: ReadonlyMap<
+    Readonly<Route>,
+    Readonly<RequestRouteBinding<Route, Value, Env, Layout>>
+  >;
 } {
   if (bindings.length > maximumBindings) configurationFailure("binding count exceeds 100,000");
   if (bindings.length !== matcher.routes.length)
     configurationFailure("every matcher route requires exactly one binding");
   const routes = new Set<Readonly<Route>>(matcher.routes);
-  const byRoute = new Map<Readonly<Route>, Readonly<RequestRouteBinding<Route, Value, Env>>>();
-  const copies: Readonly<RequestRouteBinding<Route, Value, Env>>[] = [];
+  const byRoute = new Map<
+    Readonly<Route>,
+    Readonly<RequestRouteBinding<Route, Value, Env, Layout>>
+  >();
+  const copies: Readonly<RequestRouteBinding<Route, Value, Env, Layout>>[] = [];
   for (const binding of bindings) {
     if (!isObject(binding) || !routes.has(binding.route))
       configurationFailure("binding route must use matcher route identity");
     if (byRoute.has(binding.route)) configurationFailure("duplicate route binding");
-    let copy: Readonly<RequestRouteBinding<Route, Value, Env>>;
+    let copy: Readonly<RequestRouteBinding<Route, Value, Env, Layout>>;
     if (binding.route.kind === "page") {
       const load = "load" in binding ? binding.load : undefined;
       if (typeof load !== "function") configurationFailure("page binding requires load");
-      copy = Object.freeze({ route: binding.route, load }) as Readonly<
-        RequestRouteBinding<Route, Value, Env>
-      >;
+      const layouts = "layouts" in binding ? binding.layouts : undefined;
+      if (layouts !== undefined && !Array.isArray(layouts))
+        configurationFailure("page binding layouts must be an array");
+      copy = Object.freeze({
+        route: binding.route,
+        load,
+        layouts: Object.freeze([...(layouts ?? [])])
+      }) as Readonly<RequestRouteBinding<Route, Value, Env, Layout>>;
     } else {
       const handle = "handle" in binding ? binding.handle : undefined;
       if (typeof handle !== "function") configurationFailure("endpoint binding requires handle");
       copy = Object.freeze({ route: binding.route, handle }) as Readonly<
-        RequestRouteBinding<Route, Value, Env>
+        RequestRouteBinding<Route, Value, Env, Layout>
       >;
     }
     byRoute.set(binding.route, copy);
@@ -273,15 +290,17 @@ async function convertStreaming(
   }
 }
 
-async function renderPage<Value, Env>(
-  renderer: Readonly<Renderer<Value, Env>>,
+async function renderPage<Value, Env, Layout>(
+  renderer: Readonly<Renderer<Value, Env, Layout>>,
   value: Value,
+  layouts: readonly Layout[],
   context: Readonly<RequestContext<Env>>,
   head: boolean
 ): Promise<Response> {
   context.signal.throwIfAborted();
   const unknownResult: unknown = await renderer.render({
     value,
+    layouts,
     context,
     signal: context.signal
   });
@@ -309,9 +328,9 @@ async function renderPage<Value, Env>(
  * through unchanged. Page rendering supports buffered and backpressure-aware streaming output;
  * renderer cleanup runs exactly once after buffered conversion or stream completion/cancellation.
  */
-export function createRequestHandler<Route extends MatchRoute, Value, Env>(
-  options: CreateRequestHandlerOptions<Route, Value, Env>
-): Readonly<RequestHandler<Route, Value, Env>> {
+export function createRequestHandler<Route extends MatchRoute, Value, Env, Layout = never>(
+  options: CreateRequestHandlerOptions<Route, Value, Env, Layout>
+): Readonly<RequestHandler<Route, Value, Env, Layout>> {
   if (!isObject(options)) configurationFailure("options must be an object");
   const { matcher, renderer } = options;
   if (!isObject(matcher) || !Array.isArray(matcher.routes) || typeof matcher.match !== "function") {
@@ -325,7 +344,7 @@ export function createRequestHandler<Route extends MatchRoute, Value, Env>(
   ) {
     configurationFailure("renderer must satisfy the renderer contract");
   }
-  const copied = copyBindings<Route, Value, Env>(matcher, options.bindings);
+  const copied = copyBindings<Route, Value, Env, Layout>(matcher, options.bindings);
   const handle = async (input: HandleRequestInput<Env>): Promise<Response> => {
     if (!isObject(input) || typeof input.pathname !== "string")
       configurationFailure("invocation must include a raw pathname");
@@ -345,12 +364,13 @@ export function createRequestHandler<Route extends MatchRoute, Value, Env>(
     if (pageMatch === undefined) return notFound();
     const binding = copied.byRoute.get(pageMatch.route);
     const pageLoad = binding !== undefined && "load" in binding ? binding.load : undefined;
+    const layouts = binding !== undefined && "layouts" in binding ? binding.layouts : undefined;
     if (binding === undefined || binding.route.kind !== "page" || !pageLoad)
       contractFailure("matched page binding is unavailable");
     const context = createContext(input, pageMatch.params);
     context.signal.throwIfAborted();
     const value = await pageLoad(context);
-    return renderPage(renderer, value, context, input.request.method === "HEAD");
+    return renderPage(renderer, value, layouts ?? [], context, input.request.method === "HEAD");
   };
   return Object.freeze({ matcher, bindings: copied.bindings, handle });
 }

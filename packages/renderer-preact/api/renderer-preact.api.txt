@@ -1,12 +1,18 @@
 ## index.d.ts
 import { type Renderer } from "@nusajs/core";
-import { type ComponentChild } from "preact";
+import { type ComponentChild, type ComponentChildren, type ComponentType } from "preact";
 /** Stable identifier of the official Preact renderer. */
 export declare const PREACT_RENDERER_ID = "preact";
+/** Props exposed to a Preact layout component. */
+export interface PreactLayoutProps {
+	readonly children: ComponentChildren;
+}
+/** A children-only Preact layout component. */
+export type PreactLayoutComponent = ComponentType<PreactLayoutProps>;
 /**
  * Creates the official buffered Preact SSR renderer.
  *
  * Preact escapes normal text and attributes. Its `dangerouslySetInnerHTML` property is an explicit
  * unsafe escape hatch and does not sanitize arbitrary HTML.
  */
-export declare function createPreactRenderer<Env = unknown>(): Renderer<ComponentChild, Env>;
+export declare function createPreactRenderer<Env = unknown>(): Renderer<ComponentChild, Env, PreactLayoutComponent>;

@@ -3,7 +3,7 @@ import type { RouteGraph, RouteSegment } from "./route-parser.js";
 /** Stable schema name of the route manifest. */
 export const ROUTE_MANIFEST_NAME = "route-manifest" as const;
 /** Current route-manifest schema major version. */
-export const ROUTE_MANIFEST_VERSION = 1 as const;
+export const ROUTE_MANIFEST_VERSION = 2 as const;
 /** Stable schema name of the security manifest. */
 export const SECURITY_MANIFEST_NAME = "security-manifest" as const;
 /** Current security-manifest schema major version. */
@@ -13,15 +13,33 @@ export const CAPABILITY_MANIFEST_NAME = "capability-manifest" as const;
 /** Current capability-manifest schema major version. */
 export const CAPABILITY_MANIFEST_VERSION = 1 as const;
 
-/** A route entry in the versioned route manifest. */
-export interface ManifestRoute {
+interface ManifestRouteBase {
   readonly id: string;
-  readonly kind: "page" | "endpoint";
   readonly pattern: string;
   readonly file: string;
   readonly specificity: readonly number[];
   readonly segments: readonly Readonly<RouteSegment>[];
 }
+
+/** One renderer layout associated with a page route, ordered root to child. */
+export interface ManifestLayout {
+  readonly file: string;
+  readonly scope: string;
+}
+
+/** A page entry with its complete root-to-child layout chain. */
+export interface ManifestPageRoute extends ManifestRouteBase {
+  readonly kind: "page";
+  readonly layouts: readonly Readonly<ManifestLayout>[];
+}
+
+/** An endpoint entry, which never participates in layout rendering. */
+export interface ManifestEndpointRoute extends ManifestRouteBase {
+  readonly kind: "endpoint";
+}
+
+/** A route entry in the versioned route manifest. */
+export type ManifestRoute = ManifestPageRoute | ManifestEndpointRoute;
 
 /** Versioned route manifest (AC-ARCH-02, FW-107). */
 export interface RouteManifest {
@@ -129,25 +147,51 @@ function validatedNames(names: readonly string[], label: string): readonly strin
  * independent of scan order.
  */
 export function createRouteManifest(graph: RouteGraph): Readonly<RouteManifest> {
-  if (graph === null || typeof graph !== "object" || !Array.isArray(graph.routes)) {
+  if (
+    graph === null ||
+    typeof graph !== "object" ||
+    !Array.isArray(graph.routes) ||
+    !Array.isArray(graph.boundaries)
+  ) {
     manifestFailure("route graph is required");
   }
+  const layouts = graph.boundaries.filter((boundary) => boundary.kind === "layout");
+  const layoutBranches = new Set<string>();
+  for (const layout of layouts) {
+    const key = JSON.stringify(layout.branch);
+    if (layoutBranches.has(key)) manifestFailure(`duplicate layout position at ${layout.scope}`);
+    layoutBranches.add(key);
+  }
+  const appliesTo = (layoutBranch: readonly string[], routeBranch: readonly string[]): boolean =>
+    layoutBranch.length <= routeBranch.length &&
+    layoutBranch.every((part, index) => routeBranch[index] === part);
   return Object.freeze({
     schema: ROUTE_MANIFEST_NAME,
     version: ROUTE_MANIFEST_VERSION,
     routes: Object.freeze(
-      graph.routes.map((route) =>
-        Object.freeze({
+      graph.routes.map((route): Readonly<ManifestRoute> => {
+        const base = {
           id: routeId(route.kind, route.pattern),
-          kind: route.kind,
           pattern: route.pattern,
           file: route.file,
           specificity: Object.freeze([...route.specificity]),
           segments: Object.freeze(
             route.segments.map((segment: Readonly<RouteSegment>) => Object.freeze({ ...segment }))
           )
-        })
-      )
+        };
+        if (route.kind === "endpoint") return Object.freeze({ ...base, kind: route.kind });
+        const chain = Object.freeze(
+          layouts
+            .filter((layout) => appliesTo(layout.branch, route.branch))
+            .sort(
+              (left, right) =>
+                left.branch.length - right.branch.length ||
+                left.file.localeCompare(right.file, "en")
+            )
+            .map((layout) => Object.freeze({ file: layout.file, scope: layout.scope }))
+        );
+        return Object.freeze({ ...base, kind: route.kind, layouts: chain });
+      })
     )
   });
 }

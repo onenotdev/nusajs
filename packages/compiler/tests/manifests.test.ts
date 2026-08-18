@@ -19,6 +19,7 @@ const graph: RouteGraph = Object.freeze({
       kind: "page",
       pattern: "/blog/[slug]",
       collisionKey: "/blog/[slug]",
+      branch: Object.freeze(["blog"]),
       segments: Object.freeze([
         Object.freeze({ kind: "static", value: "blog" }),
         Object.freeze({ kind: "dynamic", value: "slug" })
@@ -30,12 +31,21 @@ const graph: RouteGraph = Object.freeze({
       kind: "endpoint",
       pattern: "/health",
       collisionKey: "/health",
+      branch: Object.freeze([]),
       segments: Object.freeze([Object.freeze({ kind: "static", value: "health" })]),
       specificity: Object.freeze([4]),
       file: "health.endpoint.ts"
     })
   ]),
-  boundaries: Object.freeze([])
+  boundaries: Object.freeze([
+    Object.freeze({ kind: "layout", scope: "/", branch: Object.freeze([]), file: "_layout.tsx" }),
+    Object.freeze({
+      kind: "layout",
+      scope: "/blog",
+      branch: Object.freeze(["blog"]),
+      file: "blog/_layout.tsx"
+    })
+  ])
 });
 
 describe("createRouteManifest", () => {
@@ -49,15 +59,22 @@ describe("createRouteManifest", () => {
       kind: "page",
       pattern: "/blog/[slug]",
       file: "blog/[slug].page.ts",
-      specificity: [4, 3]
+      specificity: [4, 3],
+      layouts: [
+        { file: "_layout.tsx", scope: "/" },
+        { file: "blog/_layout.tsx", scope: "/blog" }
+      ]
     });
+    expect(first.routes[1]).not.toHaveProperty("layouts");
+    expect(Object.isFrozen(first.routes[0])).toBe(true);
+    expect(Object.isFrozen(first.routes[0]?.kind === "page" && first.routes[0].layouts)).toBe(true);
     expect(JSON.stringify(first)).toBe(JSON.stringify(second));
   });
 
   it("derives stable route identities from role and pattern regardless of order", () => {
     const reversed = createRouteManifest({
       routes: Object.freeze([...graph.routes].reverse()),
-      boundaries: Object.freeze([])
+      boundaries: Object.freeze([...graph.boundaries].reverse())
     });
     const forward = createRouteManifest(graph);
     expect(reversed.routes[0]?.id).toBe(forward.routes[1]?.id);
@@ -126,7 +143,7 @@ describe("assertManifestSupported", () => {
       assertManifestSupported(
         { schema: ROUTE_MANIFEST_NAME, version: ROUTE_MANIFEST_VERSION },
         ROUTE_MANIFEST_NAME,
-        1
+        ROUTE_MANIFEST_VERSION
       )
     ).not.toThrow();
     expect(() =>

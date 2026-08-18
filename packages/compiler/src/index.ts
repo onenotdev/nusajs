@@ -11,6 +11,9 @@ export {
 export type {
   CapabilityManifest,
   CapabilityManifestInput,
+  ManifestEndpointRoute,
+  ManifestLayout,
+  ManifestPageRoute,
   ManifestRoute,
   RouteCapability,
   RouteManifest,

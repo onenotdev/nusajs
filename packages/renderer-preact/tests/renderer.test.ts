@@ -18,6 +18,7 @@ describe("official Preact renderer", () => {
     const requestContext = context();
     const result = await renderer.render({
       value: createElement("main", null, createElement("h1", null, "NusaJS")),
+      layouts: [],
       context: requestContext,
       signal: requestContext.signal
     });
@@ -45,6 +46,7 @@ describe("official Preact renderer", () => {
     const requestContext = context();
     const result = await renderer.render({
       value: createElement("a", { href: `/search?q=${payload}`, title: payload }, payload),
+      layouts: [],
       context: requestContext,
       signal: requestContext.signal
     });
@@ -63,9 +65,34 @@ describe("official Preact renderer", () => {
     await expect(
       createPreactRenderer().render({
         value: createElement("p", null, "never rendered"),
+        layouts: [],
         context: requestContext,
         signal: controller.signal
       })
     ).rejects.toBe("client disconnected");
+  });
+
+  it("composes root-to-child layouts exactly once while preserving escaping", async () => {
+    const calls = { root: 0, child: 0 };
+    const Root = ({ children }: { readonly children: unknown }) => {
+      calls.root += 1;
+      return createElement("div", { class: "root" }, children as never);
+    };
+    const Child = ({ children }: { readonly children: unknown }) => {
+      calls.child += 1;
+      return createElement("section", { class: "child" }, children as never);
+    };
+    const requestContext = context();
+    const result = await createPreactRenderer().render({
+      value: createElement("p", null, "<script>alert(1)</script>"),
+      layouts: [Root, Child],
+      context: requestContext,
+      signal: requestContext.signal
+    });
+
+    expect(result.body).toBe(
+      '<div class="root"><section class="child"><p>&lt;script>alert(1)&lt;/script></p></section></div>'
+    );
+    expect(calls).toEqual({ root: 1, child: 1 });
   });
 });

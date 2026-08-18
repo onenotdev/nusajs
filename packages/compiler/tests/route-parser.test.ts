@@ -18,6 +18,7 @@ describe("route parser and collision detection", () => {
       file("files/[[...rest]].page.tsx"),
       file("api/users.endpoint.ts", "endpoint"),
       file("_layout.tsx", "layout"),
+      file("(marketing)/_layout.tsx", "layout"),
       file("blog/_error.tsx", "error"),
       file("blog/_loading.tsx", "loading")
     ]);
@@ -33,9 +34,10 @@ describe("route parser and collision detection", () => {
       ["page", "/"]
     ]);
     expect(graph.boundaries).toEqual([
-      { kind: "layout", scope: "/", file: "_layout.tsx" },
-      { kind: "error", scope: "/blog", file: "blog/_error.tsx" },
-      { kind: "loading", scope: "/blog", file: "blog/_loading.tsx" }
+      { kind: "layout", scope: "/", branch: [], file: "_layout.tsx" },
+      { kind: "layout", scope: "/", branch: ["(marketing)"], file: "(marketing)/_layout.tsx" },
+      { kind: "error", scope: "/blog", branch: ["blog"], file: "blog/_error.tsx" },
+      { kind: "loading", scope: "/blog", branch: ["blog"], file: "blog/_loading.tsx" }
     ]);
     expect(Object.isFrozen(graph)).toBe(true);
     expect(graph.routes.every(Object.isFrozen)).toBe(true);
@@ -93,8 +95,27 @@ describe("route parser and collision detection", () => {
     expect(() => parseRouteGraph([file("[...path]/tail.page.ts")])).toThrow(RouteParseError);
   });
 
+  it("rejects duplicate layouts at one structural position deterministically", () => {
+    const records = [file("blog/_layout.tsx", "layout"), file("blog/_layout.ts", "layout")];
+    expect(() => parseRouteGraph(records)).toThrow(RouteParseError);
+    try {
+      parseRouteGraph(records);
+    } catch (error) {
+      expect((error as RouteParseError).diagnostics.map((item) => item.file)).toEqual([
+        "blog/_layout.ts",
+        "blog/_layout.tsx"
+      ]);
+    }
+  });
+
   it("is independent of scanner record order", () => {
-    const records = [file("z.page.ts"), file("[id].page.ts"), file("a.page.ts")];
+    const records = [
+      file("z.page.ts"),
+      file("[id].page.ts"),
+      file("a.page.ts"),
+      file("_layout.tsx", "layout"),
+      file("(group)/_layout.tsx", "layout")
+    ];
     expect(parseRouteGraph(records)).toEqual(parseRouteGraph([...records].reverse()));
   });
 });

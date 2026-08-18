@@ -10,9 +10,9 @@ import { formatProductionDiagnostic } from "@nusajs/core";
 import type { MatchRoute, RequestHandler } from "@nusajs/core";
 
 /** Configuration for a minimal Node.js adapter server. */
-export interface NodeServerOptions<Env = unknown> {
+export interface NodeServerOptions<Env = unknown, Layout = never> {
   /** The universal request pipeline that serves every accepted request. */
-  readonly handler: Readonly<RequestHandler<MatchRoute, unknown, Env>>;
+  readonly handler: Readonly<RequestHandler<MatchRoute, unknown, Env, Layout>>;
   /**
    * Honors `X-Forwarded-Host` and `X-Forwarded-Proto` when the server runs behind a
    * trusted proxy. Defaults to `false`; forwarded headers are otherwise ignored.
@@ -63,8 +63,8 @@ export interface NodeServer {
   shutdown(): Promise<void>;
 }
 
-interface AdapterState<Env> {
-  readonly handler: Readonly<RequestHandler<MatchRoute, unknown, Env>>;
+interface AdapterState<Env, Layout> {
+  readonly handler: Readonly<RequestHandler<MatchRoute, unknown, Env, Layout>>;
   readonly trustProxy: boolean;
   readonly maxUrlLength: number;
   readonly maxRequestSize: number;
@@ -213,7 +213,7 @@ function writeResponse(res: ServerResponse, response: Response, controller: Abor
 }
 
 function handleConnection<Env>(
-  state: AdapterState<Env>,
+  state: AdapterState<Env, unknown>,
   req: IncomingMessage,
   res: ServerResponse
 ): void {
@@ -321,7 +321,9 @@ function listen(server: HttpServer, hostname: string, port: number): Promise<Nod
  * URL and body limits, passes the raw pathname to the pipeline, and converts pipeline responses
  * with streaming backpressure. Handler failures produce a redacted production diagnostic.
  */
-export function createNodeServer<Env>(options: NodeServerOptions<Env>): Readonly<NodeServer> {
+export function createNodeServer<Env, Layout = never>(
+  options: NodeServerOptions<Env, Layout>
+): Readonly<NodeServer> {
   if (options === null || typeof options !== "object") {
     configurationFailure("options must be an object");
   }
@@ -348,7 +350,7 @@ export function createNodeServer<Env>(options: NodeServerOptions<Env>): Readonly
     options.shutdownTimeoutMs ?? defaultShutdownTimeoutMs,
     "shutdownTimeoutMs"
   );
-  const state: AdapterState<Env> = {
+  const state: AdapterState<Env, Layout> = {
     handler,
     trustProxy,
     maxUrlLength,

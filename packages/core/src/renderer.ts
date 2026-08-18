@@ -4,8 +4,10 @@ import type { RequestContext } from "./request-context.js";
 export type RendererDelivery = "buffered" | "streaming";
 
 /** Immutable input passed to a renderer for one request. */
-export interface RenderInput<Value = unknown, Env = unknown> {
+export interface RenderInput<Value = unknown, Env = unknown, Layout = never> {
   readonly value: Value;
+  /** Renderer-specific layout values ordered from root to nearest child. */
+  readonly layouts: readonly Layout[];
   readonly context: Readonly<RequestContext<Env>>;
   readonly signal: AbortSignal;
 }
@@ -32,10 +34,10 @@ export interface StreamingRenderResult {
 export type RenderResult = BufferedRenderResult | StreamingRenderResult;
 
 /** Public implementation contract shared by every renderer. */
-export interface Renderer<Value = unknown, Env = unknown> {
+export interface Renderer<Value = unknown, Env = unknown, Layout = never> {
   readonly id: string;
   readonly deliveries: ReadonlySet<RendererDelivery>;
-  readonly render: (input: RenderInput<Value, Env>) => Promise<RenderResult>;
+  readonly render: (input: RenderInput<Value, Env, Layout>) => Promise<RenderResult>;
 }
 
 function fail(message: string): never {
@@ -47,7 +49,9 @@ function fail(message: string): never {
  *
  * Request-local state belongs only in `RenderInput`; descriptors must be safe to share globally.
  */
-export function defineRenderer<Value, Env>(renderer: Renderer<Value, Env>): Renderer<Value, Env> {
+export function defineRenderer<Value, Env, Layout = never>(
+  renderer: Renderer<Value, Env, Layout>
+): Renderer<Value, Env, Layout> {
   if (!/^[a-z][a-z0-9-]{0,63}$/.test(renderer.id)) fail("id must be a lowercase slug");
   if (typeof renderer.render !== "function") fail("render must be a function");
   if (!(renderer.deliveries instanceof Set) || renderer.deliveries.size === 0) {

@@ -14,6 +14,7 @@ const graph: RouteGraph = Object.freeze({
       kind: "page",
       pattern: "/",
       collisionKey: "/",
+      branch: Object.freeze([]),
       segments: Object.freeze([]),
       specificity: Object.freeze([]),
       file: "index.page.ts"
@@ -22,6 +23,7 @@ const graph: RouteGraph = Object.freeze({
       kind: "page",
       pattern: "/blog/[slug]/[[tab]]",
       collisionKey: "/blog/[]/[[]]",
+      branch: Object.freeze(["blog"]),
       segments: Object.freeze([
         Object.freeze({ kind: "static", value: "blog" }),
         Object.freeze({ kind: "dynamic", value: "slug" }),
@@ -34,6 +36,7 @@ const graph: RouteGraph = Object.freeze({
       kind: "endpoint",
       pattern: "/files/[...parts]",
       collisionKey: "/files/[...]",
+      branch: Object.freeze(["files"]),
       segments: Object.freeze([
         Object.freeze({ kind: "static", value: "files" }),
         Object.freeze({ kind: "catch-all", value: "parts" })
@@ -45,6 +48,7 @@ const graph: RouteGraph = Object.freeze({
       kind: "page",
       pattern: "/docs/[[...parts]]",
       collisionKey: "/docs/[[...]]",
+      branch: Object.freeze(["docs"]),
       segments: Object.freeze([
         Object.freeze({ kind: "static", value: "docs" }),
         Object.freeze({ kind: "optional-catch-all", value: "parts" })
@@ -111,7 +115,7 @@ describe("generateRouteTypes", () => {
     const route = manifest.routes[0];
     if (route === undefined) throw new Error("fixture requires one route");
     expect(() =>
-      generateRouteTypes({ ...manifest, version: 2 } as unknown as RouteManifest)
+      generateRouteTypes({ ...manifest, version: 3 } as unknown as RouteManifest)
     ).toThrow("not supported");
     expect(() => generateRouteTypes({ ...manifest, routes: [route, route] })).toThrow(
       "invalid or duplicate route"
